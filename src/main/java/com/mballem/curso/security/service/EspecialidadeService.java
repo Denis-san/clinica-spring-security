@@ -33,7 +33,7 @@ public class EspecialidadeService {
 
 		datatables.setRequest(request);
 		datatables.setColunas(DatatablesColunas.ESPECIALIDADES);
-		Page<?> page;
+		Page<Especialidade> page;
 
 		if (datatables.getSearch().isEmpty()) {
 			page = repository.findAll(datatables.getPageable());
@@ -42,6 +42,17 @@ public class EspecialidadeService {
 		}
 
 		return datatables.getResponse(page);
+
+	}
+
+	@Transactional(readOnly = true)
+	public Especialidade buscarPorId(Long id) {
+		return repository.findById(id).get();
+	}
+
+	@Transactional(readOnly = false)
+	public void removerPorId(Long id) {
+		repository.deleteById(id);
 
 	}
 

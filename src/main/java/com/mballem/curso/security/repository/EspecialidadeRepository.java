@@ -10,7 +10,7 @@ import com.mballem.curso.security.domain.Especialidade;
 public interface EspecialidadeRepository  extends JpaRepository<Especialidade, Long>{
 
 	@Query("select e from Especialidade e where e.titulo like :search%")
-	Page<?> findAllByTitulo(String search, Pageable pageable);
+	Page<Especialidade> findAllByTitulo(String search, Pageable pageable);
 
 	
 	
