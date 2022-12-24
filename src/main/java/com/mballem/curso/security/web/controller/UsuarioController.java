@@ -10,11 +10,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.mballem.curso.security.domain.Perfil;
+import com.mballem.curso.security.domain.PerfilTipo;
 import com.mballem.curso.security.domain.Usuario;
 import com.mballem.curso.security.service.UsuarioService;
 
@@ -55,12 +58,44 @@ public class UsuarioController {
 				service.salvarUsuario(usuario);
 				attr.addFlashAttribute("sucesso", "Sucesso!");
 			} catch (DataIntegrityViolationException err) {
-				attr.addFlashAttribute("falha", "Cadastro não realizado! Pois esse email ja existe em nossa aplicação!");
+				attr.addFlashAttribute("falha",
+						"Cadastro não realizado! Pois esse email ja existe em nossa aplicação!");
 			}
 		}
 
 		return "redirect:/u/novo/cadastro/usuario";
 
+	}
+
+	@GetMapping("/editar/credenciais/usuario/{id}")
+	public ModelAndView preEditarCredenciais(@PathVariable("id") Long id) {
+		return new ModelAndView("usuario/cadastro", "usuario", service.buscarUsuarioPorId(id));
+	}
+
+	@GetMapping("/editar/dados/usuario/{id}/perfis/{perfis}")
+	public ModelAndView preEditarDadosPessoais(@PathVariable("id") Long usuarioId,
+			@PathVariable("perfis") Long[] perfisId) {
+
+		Usuario usuario = service.buscarUsuarioPorIdEPerfis(usuarioId, perfisId);
+
+		if (usuario.getPerfis().contains(new Perfil(PerfilTipo.ADMIN.getCod()))
+				&& !usuario.getPerfis().contains(new Perfil(PerfilTipo.MEDICO.getCod()))) {
+			return new ModelAndView("usuario/cadastro", "usuario", usuario);
+		}
+
+		if (usuario.getPerfis().contains(new Perfil(PerfilTipo.MEDICO.getCod()))) {
+			return new ModelAndView("especialidade/especialidade");
+		}
+
+		if (usuario.getPerfis().contains(new Perfil(PerfilTipo.PACIENTE.getCod()))) {
+			ModelAndView modelAndView = new ModelAndView("error");
+			modelAndView.addObject("status", 403);
+			modelAndView.addObject("error", "Área restrita!");
+			modelAndView.addObject("message", "Os dados de pacientes são restritos a eles");
+			return modelAndView;
+		}
+
+		return new ModelAndView("redirect:/u/lista");
 	}
 
 }
