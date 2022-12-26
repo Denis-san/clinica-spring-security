@@ -26,17 +26,22 @@ public class MedicoService {
 	@Transactional(readOnly = false)
 	public void editar(Medico medico) {
 		Medico otherMedico = repository.findById(medico.getId()).get();
-		
+
 		otherMedico.setCrm(medico.getCrm());
 		otherMedico.setDtInscricao(medico.getDtInscricao());
 		otherMedico.setNome(medico.getNome());
-		
-		if(!medico.getEspecialidades().isEmpty()) {
+
+		if (!medico.getEspecialidades().isEmpty()) {
 			otherMedico.getEspecialidades().addAll(medico.getEspecialidades());
 		}
-		
+
 		repository.save(otherMedico);
-		
+
+	}
+
+	@Transactional(readOnly = true)
+	public Medico findByEmail(String email) {
+		return repository.findByUsuarioEmail(email).orElse(new Medico());
 	}
 
 }
