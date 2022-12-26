@@ -11,6 +11,10 @@ import com.mballem.curso.security.service.UsuarioService;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	private static final String ADMIN = "ADMIN";
+	private static final String MEDICO = "MEDICO";
+	private static final String PACIENTE = "PACIENTE";
 
 	@Autowired
 	private UsuarioService service;
@@ -22,17 +26,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/", "/home").permitAll()
 
 				// acessos admin
-				.antMatchers("/u/**").hasAuthority("ADMIN")
-				.antMatchers("/medicos/dados", "/medicos/editar", "/medicos/salvar").hasAnyAuthority("MEDICO", "ADMIN")
+				.antMatchers("/u/**").hasAuthority(ADMIN)
+				.antMatchers("/medicos/dados", "/medicos/editar", "/medicos/salvar").hasAnyAuthority(MEDICO, ADMIN)
 
 				// acessos medicos
-				.antMatchers("/medicos/**").hasAuthority("MEDICO")
-				.antMatchers("/especialidades/titulo").hasAnyAuthority("MEDICO", "ADMIN")
+				.antMatchers("/medicos/**").hasAuthority(MEDICO)
+				.antMatchers("/especialidades/titulo").hasAnyAuthority(MEDICO, ADMIN)
+				.antMatchers("/especialidades/datatables/server/medico/*").hasAnyAuthority(MEDICO, ADMIN)
 
-				.antMatchers("/especialidades/**").hasAuthority("ADMIN")
+				.antMatchers("/especialidades/**").hasAuthority(ADMIN)
 
 				// acesso pacientes
-				.antMatchers("/pacientes/**").hasAuthority("PACIENTE")
+				.antMatchers("/pacientes/**").hasAuthority(PACIENTE)
 				
 				.anyRequest().authenticated()
 			.and()
