@@ -90,4 +90,14 @@ public class UsuarioService implements UserDetailsService {
 				.orElseThrow(() -> new UsernameNotFoundException("Usuario não encontrado"));
 	}
 
+	public boolean isSenhaCorreta(String senhaInserida, String senhaArmazenada) {
+		return new BCryptPasswordEncoder().matches(senhaInserida, senhaArmazenada);
+	}
+
+	@Transactional(readOnly = false)
+	public void alterarSenha(Usuario usuario, String novaSenha) {
+		usuario.setSenha(new BCryptPasswordEncoder().encode(novaSenha));
+		repository.save(usuario);
+	}
+
 }

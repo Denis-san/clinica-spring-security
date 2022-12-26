@@ -26,14 +26,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/", "/home").permitAll()
 
 				// acessos admin
+				.antMatchers("/u/editar/senha", "/u/confirmar/senha").hasAuthority(MEDICO)
 				.antMatchers("/u/**").hasAuthority(ADMIN)
 				.antMatchers("/medicos/dados", "/medicos/editar", "/medicos/salvar").hasAnyAuthority(MEDICO, ADMIN)
 
 				// acessos medicos
 				.antMatchers("/medicos/**").hasAuthority(MEDICO)
+				
+				// acessos especialidades
 				.antMatchers("/especialidades/titulo").hasAnyAuthority(MEDICO, ADMIN)
 				.antMatchers("/especialidades/datatables/server/medico/*").hasAnyAuthority(MEDICO, ADMIN)
-
 				.antMatchers("/especialidades/**").hasAuthority(ADMIN)
 
 				// acesso pacientes
