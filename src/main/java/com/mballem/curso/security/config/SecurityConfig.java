@@ -17,21 +17,35 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/webjars/**", "/css/**", "/image/**", "/js/**").permitAll()
+		http.authorizeRequests()
+				.antMatchers("/webjars/**", "/css/**", "/image/**", "/js/**").permitAll()
 				.antMatchers("/", "/home").permitAll()
 
 				// acessos admin
-				.antMatchers("/u/**", "/especialidades/**").hasAuthority("ADMIN")
+				.antMatchers("/u/**").hasAuthority("ADMIN")
 				.antMatchers("/medicos/dados", "/medicos/editar", "/medicos/salvar").hasAnyAuthority("MEDICO", "ADMIN")
 
 				// acessos medicos
 				.antMatchers("/medicos/**").hasAuthority("MEDICO")
+				.antMatchers("/especialidades/titulo").hasAnyAuthority("MEDICO", "ADMIN")
+
+				.antMatchers("/especialidades/**").hasAuthority("ADMIN")
 
 				// acesso pacientes
 				.antMatchers("/pacientes/**").hasAuthority("PACIENTE")
-
-				.anyRequest().authenticated().and().formLogin().loginPage("/login").defaultSuccessUrl("/", true)
-				.failureUrl("/login-error").permitAll().and().logout().logoutSuccessUrl("/").and().exceptionHandling()
+				
+				.anyRequest().authenticated()
+			.and()
+				.formLogin()
+				.loginPage("/login")
+				.defaultSuccessUrl("/", true)
+				.failureUrl("/login-error")
+				.permitAll()
+			.and()
+				.logout()
+				.logoutSuccessUrl("/")
+			.and()
+				.exceptionHandling()
 				.accessDeniedPage("/acesso-negado");
 	}
 
