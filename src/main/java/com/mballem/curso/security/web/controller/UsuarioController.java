@@ -131,7 +131,7 @@ public class UsuarioController {
 		Usuario usuario = service.buscarUsuarioPorEmail(user.getUsername());
 
 		if (!service.isSenhaCorreta(senha3, usuario.getSenha())) {
-			attr.addFlashAttribute("falha", "A senha ATUAL incorreta!");
+			attr.addFlashAttribute("falha", "Senha ATUAL incorreta!");
 			return "redirect:/u/editar/senha";
 		}
 
