@@ -46,6 +46,21 @@ public class PacienteController {
 		if(usuarioService.isSenhaCorreta(paciente.getUsuario().getSenha(), usuario.getSenha())) {
 			paciente.setUsuario(usuario);
 			service.salvar(paciente);
+			model.addAttribute("sucesso", "Dados inseridos com sucesso!");
+		}else {
+			model.addAttribute("falha", "Senha incorreta!");
+		}
+
+		return "paciente/cadastro";
+	}
+	
+	@PostMapping("/editar")
+	public String editar(Paciente paciente, @AuthenticationPrincipal User user, ModelMap model) {
+
+		Usuario usuario = usuarioService.buscarUsuarioPorEmail(user.getUsername());
+		
+		if(usuarioService.isSenhaCorreta(paciente.getUsuario().getSenha(), usuario.getSenha())) {
+			service.editar(paciente);
 			model.addAttribute("sucesso", "Dados atualizados com sucesso!");
 		}else {
 			model.addAttribute("falha", "Senha incorreta!");
