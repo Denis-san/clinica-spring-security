@@ -17,6 +17,7 @@ import com.mballem.curso.security.domain.Agendamento;
 import com.mballem.curso.security.domain.Horario;
 import com.mballem.curso.security.repository.AgendamentoRepository;
 import com.mballem.curso.security.repository.projection.HistoricoPaciente;
+import com.mballem.curso.security.web.controller.exception.AcessoNegadoException;
 
 @Service
 public class AgendamentoService {
@@ -54,8 +55,31 @@ public class AgendamentoService {
 	}
 
 	@Transactional(readOnly = true)
-	public Agendamento findAgendamentoById(Long id) {
+	public Agendamento buscarAgendamentoPorId(Long id) {
 		return repository.findById(id).get();
+	}
+
+	@Transactional(readOnly = false)
+	public void editar(Agendamento agendamento, String email) {
+		Agendamento otherAgendamento = buscarAgendamentoPorIdEUsuario(agendamento.getId(), email);
+		otherAgendamento.setDataConsulta(agendamento.getDataConsulta());
+		otherAgendamento.setEspecialidade(agendamento.getEspecialidade());
+		otherAgendamento.setHorario(agendamento.getHorario());
+		otherAgendamento.setMedico(agendamento.getMedico());
+
+		repository.save(otherAgendamento);
+
+	}
+
+	@Transactional(readOnly = true)
+	public Agendamento buscarAgendamentoPorIdEUsuario(Long id, String email) {
+		return repository.findByIdAndPacienteOrMedicoEmail(id, email)
+				.orElseThrow(() -> new AcessoNegadoException("Acesso negado!"));
+	}
+
+	@Transactional(readOnly = false)
+	public void removerConsultaPorId(Long id) {
+		repository.deleteById(id);
 	}
 
 }

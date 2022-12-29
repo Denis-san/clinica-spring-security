@@ -91,12 +91,35 @@ public class AgendamentoController {
 	}
 
 	@GetMapping("/editar/consulta/{id}")
-	public String editarConsulta(@PathVariable("id") Long id, ModelMap model) {
+	public String preEditarConsulta(@PathVariable("id") Long id, ModelMap model, @AuthenticationPrincipal User user) {
 
-		Agendamento agendamento = service.findAgendamentoById(id);
+		Agendamento agendamento = service.buscarAgendamentoPorIdEUsuario(id, user.getUsername());
 		model.addAttribute("agendamento", agendamento);
 
 		return "agendamento/cadastro";
+	}
+
+	@PostMapping("/editar")
+	public String editarConsulta(Agendamento agendamento, RedirectAttributes attr, @AuthenticationPrincipal User user) {
+		String titulo = agendamento.getEspecialidade().getTitulo();
+		Especialidade especialidade = especialidadeService.buscarPorTitulos(new String[] { titulo }).stream()
+				.findFirst().get();
+		agendamento.setEspecialidade(especialidade);
+
+		service.editar(agendamento, user.getUsername());
+		attr.addFlashAttribute("sucesso", "Sua consulta foi alterada com sucesso!");
+
+		return "redirect:/agendamentos/agendar";
+
+	}
+
+	@GetMapping("/excluir/consulta/{id}")
+	public String excluirConsulta(@PathVariable("id") Long id, RedirectAttributes attr) {
+		service.removerConsultaPorId(id);
+
+		attr.addFlashAttribute("sucesso", "Consulta excluida com sucesso!");
+
+		return "redirect:/agendamentos/historico/paciente";
 	}
 
 }

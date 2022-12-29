@@ -17,4 +17,13 @@ public class ExceptionUsuarioController {
 		return modelAndView;
 	}
 
+	@ExceptionHandler(AcessoNegadoException.class)
+	public ModelAndView acessoNegadoExpception(AcessoNegadoException exception) {
+		ModelAndView modelAndView = new ModelAndView("error");
+		modelAndView.addObject("status", 403);
+		modelAndView.addObject("error", "Algo não deu certo!");
+		modelAndView.addObject("message", exception.getMessage());
+		return modelAndView;
+	}
+
 }
