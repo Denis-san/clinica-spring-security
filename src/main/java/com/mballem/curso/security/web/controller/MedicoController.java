@@ -65,23 +65,24 @@ public class MedicoController {
 
 		return "redirect:/medicos/dados";
 	}
-	
+
 	@GetMapping({ "/id/{idMed}/excluir/especializacao/{idEsp}" })
-	public String excluirEspecialidadePorMedico(@PathVariable("idMed") Long idMed,
-										@PathVariable("idEsp") Long idEsp, RedirectAttributes attr) {
+	public String excluirEspecialidadePorMedico(@PathVariable("idMed") Long idMed, @PathVariable("idEsp") Long idEsp,
+			RedirectAttributes attr) {
 
-		service.excluirEspecialidadePorMedico(idMed, idEsp);
-
-		attr.addFlashAttribute("sucesso", "Especialidade removida!");
-
+		if (service.existeEspecialidadeAgendada(idMed, idEsp)) {
+			attr.addFlashAttribute("falha", "Existem consultas agendadas para essa especialidade");
+		} else {
+			service.excluirEspecialidadePorMedico(idMed, idEsp);
+			attr.addFlashAttribute("sucesso", "Especialidade removida!");
+		}
 		return "redirect:/medicos/dados";
 	}
 
 	@GetMapping("/especialidade/titulo/{titulo}")
-	public ResponseEntity<?> getMedicosPorEspecialidade(@PathVariable("titulo") String titulo){
-		
+	public ResponseEntity<?> getMedicosPorEspecialidade(@PathVariable("titulo") String titulo) {
+
 		return ResponseEntity.ok(service.buscarMedicosPorEspecialidade(titulo));
 	}
-	
-	
+
 }
