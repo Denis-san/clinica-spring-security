@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -141,5 +142,60 @@ public class UsuarioController {
 		return "redirect:/u/editar/senha";
 
 	}
+	
+	@GetMapping("/novo/cadastro")
+	public String novoCadastro(Usuario usuario) {
+		return "cadastrar-se";
+	}
+	
+	@GetMapping("/cadastro/realizado")
+	public String cadastroRealizado(Usuario usuario) {
+		
+		return "fragments/mensagem";
+	}
+	
+	@PostMapping("/cadastro/paciente/salvar")
+	public String salvarCadastroPaciente(Usuario usuario, BindingResult bdResult) {
+		
+		try {
+			service.salvarCadastroPaciente(usuario);
+		}catch(DataIntegrityViolationException ex) {
+			bdResult.reject("email", "Oops! Já esse email ja existe em nosso sistema!");
+			return "cadastrar-se";
+		}
+		
+		return "redirect:/u/cadastro/realizado";
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 }
