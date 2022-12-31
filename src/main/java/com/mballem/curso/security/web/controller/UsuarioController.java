@@ -3,6 +3,7 @@ package com.mballem.curso.security.web.controller;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,60 +143,43 @@ public class UsuarioController {
 		return "redirect:/u/editar/senha";
 
 	}
-	
+
 	@GetMapping("/novo/cadastro")
 	public String novoCadastro(Usuario usuario) {
 		return "cadastrar-se";
 	}
-	
+
 	@GetMapping("/cadastro/realizado")
 	public String cadastroRealizado(Usuario usuario) {
-		
+
 		return "fragments/mensagem";
 	}
-	
+
 	@PostMapping("/cadastro/paciente/salvar")
-	public String salvarCadastroPaciente(Usuario usuario, BindingResult bdResult) {
-		
+	public String salvarCadastroPaciente(Usuario usuario, BindingResult bdResult) throws MessagingException {
+
 		try {
 			service.salvarCadastroPaciente(usuario);
-		}catch(DataIntegrityViolationException ex) {
+		} catch (DataIntegrityViolationException ex) {
 			bdResult.reject("email", "Oops! Já esse email ja existe em nosso sistema!");
 			return "cadastrar-se";
 		}
-		
+
 		return "redirect:/u/cadastro/realizado";
-		
+
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+	@GetMapping("/confirmacao/cadastro")
+	public String respostaConfirmacaoCadastroPaciente(@RequestParam("codigo") String codigo, RedirectAttributes attr) {
+
+		service.ativarCadastroPaciente(codigo);
+		
+		attr.addFlashAttribute("alerta", "sucesso");
+		attr.addFlashAttribute("titulo", "Cadastro Ativado com sucesso!");
+		attr.addFlashAttribute("texto", "Pronto! Seu cadastro está ativo.");
+		attr.addFlashAttribute("subtexto", "Siga com seu login/senha");
+
+		return "redirect:/login";
+	}
 
 }
