@@ -59,7 +59,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.logoutSuccessUrl("/")
 			.and()
 				.exceptionHandling()
-				.accessDeniedPage("/acesso-negado");
+				.accessDeniedPage("/acesso-negado")
+			.and()
+				.rememberMe();
 	}
 
 	@Override
