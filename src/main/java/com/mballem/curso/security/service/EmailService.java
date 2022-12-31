@@ -41,4 +41,25 @@ public class EmailService {
 		mailSender.send(message);
 	}
 	
+	public void enviarPedidoRedefinicaoDeSenha(String destino, String codigoVerificador) throws MessagingException {
+		MimeMessage message = mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
+		
+		Context context = new Context();
+		
+		context.setVariable("titulo", "Redefinição de senha");
+		context.setVariable("texto", "Para redefinir sua senha use o código de verificação abaixo, no formulário.");
+		context.setVariable("verificador", codigoVerificador);
+		
+		String html = template.process("email/confirmacao", context);
+		helper.setTo(destino);
+		helper.setText(html, true);
+		helper.setSubject("Redefinição de senha - Clinica Spring security");
+		helper.setFrom("nao-responder@clinica.com.br");
+		
+		helper.addInline("logo", new ClassPathResource("/static/image/spring-security.png"));
+		
+		mailSender.send(message);
+	}
+	
 }
