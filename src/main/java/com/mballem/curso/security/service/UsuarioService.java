@@ -37,8 +37,8 @@ public class UsuarioService implements UserDetailsService {
 	@Autowired
 	private Datatables datatables;
 
-	@Autowired
-	private EmailService emailService;
+	//@Autowired
+	//private EmailService emailService;
 
 	@Transactional(readOnly = true)
 	public Usuario buscarUsuarioPorEmail(String email) {
@@ -119,7 +119,7 @@ public class UsuarioService implements UserDetailsService {
 
 		repository.save(usuario);
 
-		emailDeConfirmacaoDeCadastro(usuario.getEmail());
+		// TODO emailDeConfirmacaoDeCadastro(usuario.getEmail());
 
 	}
 
@@ -130,7 +130,7 @@ public class UsuarioService implements UserDetailsService {
 
 	public void emailDeConfirmacaoDeCadastro(String email) throws MessagingException {
 		String codigo = Base64Utils.encodeToString(email.getBytes());
-		emailService.enviarPedidoDeConfirmacaoDeCadastro(email, codigo);
+		// TODO emailService.enviarPedidoDeConfirmacaoDeCadastro(email, codigo);
 	}
 
 	@Transactional(readOnly = false)
@@ -155,6 +155,6 @@ public class UsuarioService implements UserDetailsService {
 		String verificador = RandomStringUtils.randomAlphanumeric(6);
 		usuario.setCodigoVerificador(verificador);
 		
-		emailService.enviarPedidoRedefinicaoDeSenha(email, verificador);
+		// TODO emailService.enviarPedidoRedefinicaoDeSenha(email, verificador);
 	}
 }
