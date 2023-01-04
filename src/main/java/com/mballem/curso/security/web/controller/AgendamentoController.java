@@ -59,6 +59,11 @@ public class AgendamentoController {
 	public String salvar(Agendamento agendamento, RedirectAttributes attr, @AuthenticationPrincipal User user) {
 
 		Paciente paciente = pacienteService.buscarPorUsuarioEmail(user.getUsername());
+		
+		if(paciente.hasNotId()) {
+			attr.addFlashAttribute("aviso", "Você precisa preencher seus dados cadastrais antes de prosseguir");
+			return "redirect:/pacientes/dados";
+		}
 
 		String titulo = agendamento.getEspecialidade().getTitulo();
 
