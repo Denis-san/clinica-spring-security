@@ -1,5 +1,7 @@
 package com.mballem.curso.security.dto;
 
+import java.io.Serializable;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
@@ -9,7 +11,9 @@ import com.mballem.curso.security.domain.PerfilTipo;
 import com.mballem.curso.security.domain.Usuario;
 import com.mballem.curso.security.validation.Password;
 
-public class NovoUsuarioDto {
+public class NovoUsuarioDto implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	@Email
 	@NotEmpty
