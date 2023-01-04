@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -171,6 +172,9 @@ public class UsuarioController {
 			service.salvarCadastroPaciente(usuario.toNewUsuario());
 		} catch (DataIntegrityViolationException ex) {
 			bdResult.rejectValue("email", "email", "Oops! Já esse email ja existe em nosso sistema!");
+			return "cadastrar-se";
+		} catch (MailSendException e) {
+			bdResult.rejectValue("email", "email", "Não encontramos esse endereço de email... Verfique se não errou");
 			return "cadastrar-se";
 		}
 

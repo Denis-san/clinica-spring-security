@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,8 +38,8 @@ public class UsuarioService implements UserDetailsService {
 	@Autowired
 	private Datatables datatables;
 
-	//@Autowired
-	//private EmailService emailService;
+	@Autowired
+	private EmailService emailService;
 
 	@Transactional(readOnly = true)
 	public Usuario buscarUsuarioPorEmail(String email) {
@@ -111,7 +112,7 @@ public class UsuarioService implements UserDetailsService {
 	}
 
 	@Transactional(readOnly = false)
-	public void salvarCadastroPaciente(Usuario usuario) throws MessagingException {
+	public void salvarCadastroPaciente(Usuario usuario) throws MessagingException, MailSendException {
 		String crypt = new BCryptPasswordEncoder().encode(usuario.getSenha());
 
 		usuario.setSenha(crypt);
@@ -119,7 +120,7 @@ public class UsuarioService implements UserDetailsService {
 
 		repository.save(usuario);
 
-		// TODO emailDeConfirmacaoDeCadastro(usuario.getEmail());
+		 emailDeConfirmacaoDeCadastro(usuario.getEmail());
 
 	}
 
@@ -128,9 +129,9 @@ public class UsuarioService implements UserDetailsService {
 		return repository.findByEmailAndAtivo(email);
 	}
 
-	public void emailDeConfirmacaoDeCadastro(String email) throws MessagingException {
+	public void emailDeConfirmacaoDeCadastro(String email) throws MessagingException, MailSendException {
 		String codigo = Base64Utils.encodeToString(email.getBytes());
-		// TODO emailService.enviarPedidoDeConfirmacaoDeCadastro(email, codigo);
+		 emailService.enviarPedidoDeConfirmacaoDeCadastro(email, codigo);
 	}
 
 	@Transactional(readOnly = false)
@@ -148,13 +149,13 @@ public class UsuarioService implements UserDetailsService {
 	}
 
 	@Transactional(readOnly = false)
-	public void pedidoRedefinicaoDeSenha(String email) throws MessagingException {
+	public void pedidoRedefinicaoDeSenha(String email) throws MessagingException, MailSendException {
 		Usuario usuario = buscarPorEmailAtivo(email)
 				.orElseThrow(() -> new UsernameNotFoundException("Usuario não encontrado"));
 		
 		String verificador = RandomStringUtils.randomAlphanumeric(6);
 		usuario.setCodigoVerificador(verificador);
 		
-		// TODO emailService.enviarPedidoRedefinicaoDeSenha(email, verificador);
+		 emailService.enviarPedidoRedefinicaoDeSenha(email, verificador);
 	}
 }
