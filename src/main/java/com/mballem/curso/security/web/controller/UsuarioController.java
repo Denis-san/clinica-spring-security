@@ -201,8 +201,13 @@ public class UsuarioController {
 	}
 
 	@GetMapping("/p/recuperar/senha")
-	public String redefinirSenha(String email, ModelMap model) throws MessagingException {
+	public String redefinirSenha(String email, ModelMap model, RedirectAttributes attr) throws MessagingException {
 
+		if(email == null || email.isBlank()) {
+			attr.addFlashAttribute("falha", "O campo de email não deve estar vazio!");
+			return "redirect:/u/p/redefinir/senha";
+		}
+		
 		service.pedidoRedefinicaoDeSenha(email);
 
 		model.addAttribute("sucesso",
