@@ -156,6 +156,9 @@ public class UsuarioService implements UserDetailsService {
 		String verificador = RandomStringUtils.randomAlphanumeric(6);
 		usuario.setCodigoVerificador(verificador);
 		
+		///TODO TEST !!
+		System.out.println(verificador);
+		
 		// emailService.enviarPedidoRedefinicaoDeSenha(email, verificador);
 	}
 }

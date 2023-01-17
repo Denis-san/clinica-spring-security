@@ -35,7 +35,7 @@
 <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js(v=${version}) }"></script>
 </head>
 <body>	
-	<form th:action="@{/u/p/nova/senha/}" th:object="${usuario}"
+	<form th:action="@{/u/p/nova/senha/}" th:object="${recoveryAccount}"
 			class="form-signin was-validated" method="POST">		
 		<div class="text-center mb-4">
 			<img class="mb-4" th:src="@{/image/spring-security.png}" alt=""
@@ -61,7 +61,10 @@
 			<input type="password" id="inputPassword" class="form-control"
 				placeholder="Password" th:field="*{senha}" required /> 
 			<label for="inputPassword">Nova Senha</label>
-			<div class="invalid-feedback">Digite uma nova senha.</div>	
+			<div class="invalid-feedback">Digite uma nova senha.</div>
+			<ul class="invalid-feedback pl-3">
+				<li th:each="err : ${#fields.errors('senha')}" th:text="${err}"></li>
+			</ul>	
 		</div>
 		
 		<div class="form-label-group">

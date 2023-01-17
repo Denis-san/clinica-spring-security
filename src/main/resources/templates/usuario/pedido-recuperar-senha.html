@@ -35,7 +35,7 @@
 <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js(v=${version}) }"></script>
 </head>
 <body>	
-	<form th:action="@{/u/p/recuperar/senha}" class="form-signin was-validated"  method="GET" th:object="${recoveryAccount}">		
+	<form th:action="@{/u/p/recuperar/senha}" class="form-signin was-validated"  method="POST" th:object="${recoveryAccount}">		
 		<div class="text-center mb-4">
 			<img class="mb-4" th:src="@{/image/spring-security.png}" alt=""
 				width="72" height="72">

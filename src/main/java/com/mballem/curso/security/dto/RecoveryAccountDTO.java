@@ -4,14 +4,11 @@ import java.io.Serializable;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
-import org.springframework.beans.BeanUtils;
-
-import com.mballem.curso.security.domain.PerfilTipo;
-import com.mballem.curso.security.domain.Usuario;
 import com.mballem.curso.security.validation.Password;
 
-public class NovoUsuarioDto implements Serializable{
+public class RecoveryAccountDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Email
@@ -21,11 +18,15 @@ public class NovoUsuarioDto implements Serializable{
 	@Password
 	private String senha;
 
-	public NovoUsuarioDto() {
-		super();
+	@NotEmpty
+	@Size(max = 6, min = 6)
+	private String codigoVerificador;
+
+	public RecoveryAccountDTO() {
+		
 	}
 
-	public NovoUsuarioDto(String email) {
+	public RecoveryAccountDTO(String email) {
 		this.email = email;
 	}
 
@@ -45,20 +46,12 @@ public class NovoUsuarioDto implements Serializable{
 		this.senha = senha;
 	}
 
-	@Override
-	public String toString() {
-		return "NovoUsuarioDto [email=" + email + ", senha=" + senha + "]";
+	public String getCodigoVerificador() {
+		return codigoVerificador;
 	}
 
-	public Usuario toNewUsuario() {
-		Usuario usuario = new Usuario();
-
-		BeanUtils.copyProperties(this, usuario);
-		
-		usuario.setAtivo(false);
-		usuario.addPerfil(PerfilTipo.PACIENTE);
-
-		return usuario;
+	public void setCodigoVerificador(String codigoVerificador) {
+		this.codigoVerificador = codigoVerificador;
 	}
 
 }

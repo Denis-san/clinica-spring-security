@@ -30,6 +30,7 @@ import com.mballem.curso.security.domain.Perfil;
 import com.mballem.curso.security.domain.PerfilTipo;
 import com.mballem.curso.security.domain.Usuario;
 import com.mballem.curso.security.dto.NovoUsuarioDto;
+import com.mballem.curso.security.dto.RecoveryAccountDTO;
 import com.mballem.curso.security.service.EmailService;
 import com.mballem.curso.security.service.MedicoService;
 import com.mballem.curso.security.service.UsuarioService;
@@ -201,36 +202,43 @@ public class UsuarioController {
 		return "usuario/pedido-recuperar-senha";
 	}
 
-	@GetMapping("/p/recuperar/senha")
+	@PostMapping("/p/recuperar/senha")
 	public String redefinirSenha(String email, ModelMap model, RedirectAttributes attr) throws MessagingException {
 
-		if(email == null || email.isBlank() || EmailService.emailMatchesRegex(email) == false) {
+		if (email == null || email.isBlank() || EmailService.emailMatchesRegex(email) == false) {
 			attr.addFlashAttribute("falha", "Email inválido!");
 			return "redirect:/u/p/redefinir/senha";
 		}
-		
+
 		service.pedidoRedefinicaoDeSenha(email);
 
 		model.addAttribute("sucesso",
 				"Em instantes você receberá um e-mail para prosseguir com a redefinição da sua senha.");
-		model.addAttribute("usuario", new Usuario(email));
+		model.addAttribute("recoveryAccount", new RecoveryAccountDTO(email));
 
 		return "usuario/recuperar-senha";
 
 	}
 
 	@PostMapping("/p/nova/senha")
-	public String confirmacaoDeRedefinicaoDeSenha(Usuario usuario, ModelMap model) {
-		Usuario u = service.buscarUsuarioPorEmail(usuario.getEmail());
+	public String confirmacaoDeRedefinicaoDeSenha(
+			@ModelAttribute("recoveryAccount") @Valid RecoveryAccountDTO recoveryAcc, BindingResult bdResult,
+			ModelMap model) {
+		
+		if(bdResult.hasErrors()) {
+			return "usuario/recuperar-senha";
+		}
+		
+		Usuario usuario = service.buscarUsuarioPorEmail(recoveryAcc.getEmail());
 
-		if (!usuario.getCodigoVerificador().equals(u.getCodigoVerificador())) {
+		if (!usuario.getCodigoVerificador().equals(recoveryAcc.getCodigoVerificador())) {
 			model.addAttribute("falha", "Código verificador não confere!");
 			return "usuario/recuperar-senha";
 		}
 
-		u.setCodigoVerificador(null);
+		usuario.setCodigoVerificador(null);
 
-		service.alterarSenha(u, usuario.getSenha());
+		service.alterarSenha(usuario, recoveryAcc.getSenha());
 
 		model.addAttribute("alerta", "sucesso");
 		model.addAttribute("titulo", "Senha redefinida com sucesso!");
