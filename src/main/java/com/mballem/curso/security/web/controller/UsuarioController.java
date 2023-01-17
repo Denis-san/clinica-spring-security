@@ -30,6 +30,7 @@ import com.mballem.curso.security.domain.Perfil;
 import com.mballem.curso.security.domain.PerfilTipo;
 import com.mballem.curso.security.domain.Usuario;
 import com.mballem.curso.security.dto.NovoUsuarioDto;
+import com.mballem.curso.security.service.EmailService;
 import com.mballem.curso.security.service.MedicoService;
 import com.mballem.curso.security.service.UsuarioService;
 
@@ -203,8 +204,8 @@ public class UsuarioController {
 	@GetMapping("/p/recuperar/senha")
 	public String redefinirSenha(String email, ModelMap model, RedirectAttributes attr) throws MessagingException {
 
-		if(email == null || email.isBlank()) {
-			attr.addFlashAttribute("falha", "O campo de email não deve estar vazio!");
+		if(email == null || email.isBlank() || EmailService.emailMatchesRegex(email) == false) {
+			attr.addFlashAttribute("falha", "Email inválido!");
 			return "redirect:/u/p/redefinir/senha";
 		}
 		
