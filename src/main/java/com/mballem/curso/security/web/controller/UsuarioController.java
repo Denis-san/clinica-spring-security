@@ -29,6 +29,7 @@ import com.mballem.curso.security.domain.Medico;
 import com.mballem.curso.security.domain.Perfil;
 import com.mballem.curso.security.domain.PerfilTipo;
 import com.mballem.curso.security.domain.Usuario;
+import com.mballem.curso.security.dto.ChangePasswordDTO;
 import com.mballem.curso.security.dto.NovoUsuarioDto;
 import com.mballem.curso.security.dto.RecoveryAccountDTO;
 import com.mballem.curso.security.service.EmailService;
@@ -124,27 +125,31 @@ public class UsuarioController {
 	}
 
 	@GetMapping("/editar/senha")
-	public String abrirEditarSenha() {
+	public String abrirEditarSenha(@ModelAttribute("chPassObjt") ChangePasswordDTO chPassObjt) {
 		return "usuario/editar-senha";
 	}
 
 	@PostMapping("/confirmar/senha")
-	public String editarSenha(@RequestParam("senha1") String senha1, @RequestParam("senha2") String senha2,
-			@RequestParam("senha3") String senha3, @AuthenticationPrincipal User user, RedirectAttributes attr) {
+	public String editarSenha(@Valid @ModelAttribute("chPassObjt") ChangePasswordDTO chPassObjt, BindingResult bdResult,
+			@AuthenticationPrincipal User user, RedirectAttributes attr) {
 
-		if (!senha1.equals(senha2)) {
-			attr.addFlashAttribute("falha", "As senhas não conferem!");
+		if(bdResult.hasErrors()) {
+			attr.addFlashAttribute("errorsPass1", bdResult.getFieldErrors("password1"));
+			attr.addFlashAttribute("errorsPass2", bdResult.getFieldErrors("password2"));
+			attr.addFlashAttribute("errorsPassCurrentPass", bdResult.getFieldErrors("currentPassword"));
+			attr.addFlashAttribute("fieldsMatchError", bdResult.getAllErrors().stream().filter(e -> e.getCode().equals("FieldsMatch")).findFirst().orElse(null));
+			
 			return "redirect:/u/editar/senha";
 		}
-
+		
 		Usuario usuario = service.buscarUsuarioPorEmail(user.getUsername());
 
-		if (!service.isSenhaCorreta(senha3, usuario.getSenha())) {
+		if (!service.isSenhaCorreta(chPassObjt.getCurrentPassword(), usuario.getSenha())) {
 			attr.addFlashAttribute("falha", "Senha ATUAL incorreta!");
 			return "redirect:/u/editar/senha";
 		}
 
-		service.alterarSenha(usuario, senha1);
+		service.alterarSenha(usuario, chPassObjt.getPassword2());
 		attr.addFlashAttribute("sucesso", "Senha alterada com sucesso!");
 
 		return "redirect:/u/editar/senha";
@@ -224,11 +229,11 @@ public class UsuarioController {
 	public String confirmacaoDeRedefinicaoDeSenha(
 			@ModelAttribute("recoveryAccount") @Valid RecoveryAccountDTO recoveryAcc, BindingResult bdResult,
 			ModelMap model) {
-		
-		if(bdResult.hasErrors()) {
+
+		if (bdResult.hasErrors()) {
 			return "usuario/recuperar-senha";
 		}
-		
+
 		Usuario usuario = service.buscarUsuarioPorEmail(recoveryAcc.getEmail());
 
 		if (!usuario.getCodigoVerificador().equals(recoveryAcc.getCodigoVerificador())) {
