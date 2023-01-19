@@ -7,7 +7,9 @@ import org.springframework.beans.BeanUtils;
 
 import com.mballem.curso.security.domain.Especialidade;
 
-public class NovaEspecialidadeDto {
+public class EspecialidadeDTO {
+
+	private Long id;
 
 	@NotEmpty(message = "O titulo da especialidade não pode estar vazio")
 	private String titulo;
@@ -15,8 +17,16 @@ public class NovaEspecialidadeDto {
 	@Size(max = 500, message = "A descrição não deve ultrapassar 500 caracteres")
 	private String descricao;
 
-	public NovaEspecialidadeDto() {
+	public EspecialidadeDTO() {
 
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getTitulo() {
@@ -37,9 +47,9 @@ public class NovaEspecialidadeDto {
 
 	public Especialidade toNewEspecialidade() {
 		Especialidade especialidade = new Especialidade();
-		
+
 		BeanUtils.copyProperties(this, especialidade);
-		
+
 		return especialidade;
 	}
 

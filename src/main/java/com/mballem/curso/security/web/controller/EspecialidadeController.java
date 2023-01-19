@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.mballem.curso.security.domain.Especialidade;
-import com.mballem.curso.security.dto.NovaEspecialidadeDto;
+import com.mballem.curso.security.dto.EspecialidadeDTO;
 import com.mballem.curso.security.service.EspecialidadeService;
 
 @Controller
@@ -31,13 +30,15 @@ public class EspecialidadeController {
 	private EspecialidadeService service;
 
 	@GetMapping({ "", "/" })
-	public String abrirPaginaEspecialidade(@ModelAttribute("especialidade") NovaEspecialidadeDto especialidadeDto) {
+	public String abrirPaginaEspecialidade(@ModelAttribute("especialidade") EspecialidadeDTO especialidadeDto) {
 		return "especialidade/especialidade";
 	}
 
 	@PostMapping("/salvar")
-	public String salvarEspecialidade(@Valid @ModelAttribute("especialidade") NovaEspecialidadeDto especialidadeDto,
+	public String salvarEspecialidade(@Valid @ModelAttribute("especialidade") EspecialidadeDTO especialidadeDto,
 			BindingResult bdResult, RedirectAttributes attr) {
+
+		especialidadeDto.setId(null);
 
 		if (bdResult.hasErrors()) {
 			return "especialidade/especialidade";
@@ -66,6 +67,25 @@ public class EspecialidadeController {
 		Boolean editMode = true;
 		model.addAttribute("editMode", editMode);
 		return "especialidade/especialidade";
+	}
+
+	@PostMapping("/editar")
+	public String editarEspecialidade(@Valid @ModelAttribute("especialidade") EspecialidadeDTO especialidadeDto,
+			BindingResult bdResult, RedirectAttributes attr) {
+
+		if (bdResult.hasErrors()) {
+			return "especialidade/especialidade";
+		}
+
+		try {
+			service.salvar(especialidadeDto.toNewEspecialidade());
+			attr.addFlashAttribute("sucesso", "Sucesso!");
+		} catch (DataIntegrityViolationException err) {
+			attr.addFlashAttribute("falha", "Já existe essa especialidade na base de dados!");
+		}
+
+		return "redirect:/especialidades/";
+
 	}
 
 	@GetMapping("/excluir/{id}")

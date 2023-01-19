@@ -25,7 +25,7 @@
 					<div class="d-flex justify-content-center">
 						<div class="col-md-8">
 							<div th:replace="fragments/alert"></div>
-							<form th:action="@{/especialidades/salvar}" th:object="${especialidade}" method="POST"
+							<form th:action="${editMode} ? @{/especialidades/editar} : @{/especialidades/salvar}" th:object="${especialidade}" method="POST"
 								class="was-validated">
 
 								<div class="form-group row">
