@@ -114,6 +114,7 @@ public class AgendamentoController {
 	@PreAuthorize("hasAnyAuthority('PACIENTE', 'MEDICO')")
 	@PostMapping("/editar")
 	public String editarConsulta(Agendamento agendamento, RedirectAttributes attr, @AuthenticationPrincipal User user) {
+		
 		String titulo = agendamento.getEspecialidade().getTitulo();
 		Especialidade especialidade = especialidadeService.buscarPorTitulos(new String[] { titulo }).stream()
 				.findFirst().get();

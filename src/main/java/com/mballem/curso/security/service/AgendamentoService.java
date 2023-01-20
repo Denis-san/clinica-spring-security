@@ -15,7 +15,6 @@ import com.mballem.curso.security.datatables.Datatables;
 import com.mballem.curso.security.datatables.DatatablesColunas;
 import com.mballem.curso.security.domain.Agendamento;
 import com.mballem.curso.security.domain.Horario;
-import com.mballem.curso.security.domain.Paciente;
 import com.mballem.curso.security.repository.AgendamentoRepository;
 import com.mballem.curso.security.repository.projection.HistoricoPaciente;
 import com.mballem.curso.security.service.exception.AgendamentoNaoPertenceAoPacienteException;
@@ -26,9 +25,6 @@ public class AgendamentoService {
 
 	@Autowired
 	private AgendamentoRepository repository;
-
-	@Autowired
-	private PacienteService pacienteService;
 
 	@Autowired
 	private Datatables datatables;
@@ -83,21 +79,12 @@ public class AgendamentoService {
 	}
 
 	@Transactional(readOnly = false)
-	private void removerConsultaPorId(Long id) {
+	public void removerConsultaPorIdEUsuarioEmail(Long id, String emailPaciente) {
+
+		repository.findByIdAndPacienteOrMedicoEmail(id, emailPaciente).orElseThrow(
+				() -> new AgendamentoNaoPertenceAoPacienteException("O agendamento não pertence a este paciente"));
+
 		repository.deleteById(id);
-	}
-
-	@Transactional(readOnly = false)
-	public void removerConsultaPorIdEUsuarioEmail(Long id, String emailPaciente) throws AgendamentoNaoPertenceAoPacienteException {
-
-		Paciente paciente = pacienteService.buscarPorUsuarioEmail(emailPaciente);
-		Agendamento agendamento = buscarAgendamentoPorId(id);
-
-		if (!paciente.getId().equals(agendamento.getPaciente().getId())) {
-			throw new AgendamentoNaoPertenceAoPacienteException("O agendamento não pertence a este paciente");
-		}
-
-		removerConsultaPorId(id);
 
 	}
 
