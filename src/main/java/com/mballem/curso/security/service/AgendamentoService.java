@@ -45,7 +45,7 @@ public class AgendamentoService {
 				dataConsulta);
 
 		if (horariosDisponiveis.contains(agendamento.getHorario()) == false) {
-			throw new HorarioInvalidoException("Hoarario inválido");	
+			throw new HorarioInvalidoException("Horario inválido");	
 		}
 
 		repository.save(agendamento);
