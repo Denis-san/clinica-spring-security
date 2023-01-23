@@ -3,6 +3,7 @@ package com.mballem.curso.security.web.controller;
 import java.time.LocalDate;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,7 +15,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +27,7 @@ import com.mballem.curso.security.domain.Agendamento;
 import com.mballem.curso.security.domain.Especialidade;
 import com.mballem.curso.security.domain.Paciente;
 import com.mballem.curso.security.domain.PerfilTipo;
+import com.mballem.curso.security.dto.AgendamentoDTO;
 import com.mballem.curso.security.service.AgendamentoService;
 import com.mballem.curso.security.service.EspecialidadeService;
 import com.mballem.curso.security.service.PacienteService;
@@ -43,7 +47,7 @@ public class AgendamentoController {
 
 	@PreAuthorize("hasAnyAuthority('PACIENTE', 'MEDICO')")
 	@GetMapping({ "/agendar" })
-	public String agendarConsulta(Agendamento agendamento) {
+	public String agendarConsulta(@ModelAttribute("agendamento") AgendamentoDTO agendamento) {
 		return "agendamento/cadastro";
 	}
 
@@ -56,8 +60,16 @@ public class AgendamentoController {
 
 	@PreAuthorize("hasAuthority('PACIENTE')")
 	@PostMapping({ "/salvar" })
-	public String salvar(Agendamento agendamento, RedirectAttributes attr, @AuthenticationPrincipal User user) {
-
+	public String salvar(@ModelAttribute("agendamento") @Valid AgendamentoDTO agendamento, BindingResult bdResult, RedirectAttributes attr, @AuthenticationPrincipal User user) {
+		
+		if(bdResult.hasErrors()) {
+			attr.addFlashAttribute("errorsEspecialidade", bdResult.getFieldErrors("especialidade.titulo"));
+			attr.addFlashAttribute("errorsDataConsulta", bdResult.getFieldErrors("dataConsulta"));
+			attr.addFlashAttribute("errorsMedico", bdResult.getFieldErrors("medicoId"));
+			attr.addFlashAttribute("errorsHorario", bdResult.getFieldErrors("horario"));
+			return "redirect:/agendamentos/agendar";
+		}
+		
 		Paciente paciente = pacienteService.buscarPorUsuarioEmail(user.getUsername());
 		
 		if(paciente.hasNotId()) {
@@ -67,12 +79,10 @@ public class AgendamentoController {
 
 		String titulo = agendamento.getEspecialidade().getTitulo();
 
-		Especialidade especialidade = especialidadeService.buscarPorTitulos(new String[] { titulo }).stream()
-				.findFirst().get();
-
-		agendamento.setEspecialidade(especialidade);
-		agendamento.setPaciente(paciente);
-		service.salvar(agendamento);
+		Especialidade especialidade = especialidadeService.buscarPorTituloEIdMedico(titulo, agendamento.getMedicoId());
+		
+		Agendamento agendamentoToSave = agendamento.toAgendamento(paciente, especialidade);
+		service.salvar(agendamentoToSave);
 
 		attr.addFlashAttribute("sucesso", "Sua consulta foi agendada com sucesso!");
 

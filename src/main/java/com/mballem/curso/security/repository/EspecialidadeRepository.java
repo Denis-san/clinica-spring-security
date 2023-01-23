@@ -1,6 +1,7 @@
 package com.mballem.curso.security.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -25,5 +26,10 @@ public interface EspecialidadeRepository extends JpaRepository<Especialidade, Lo
 			+ "join e.medicos m "
 			+ "where m.id = :id")
 	Page<Especialidade> findByIdMedico(Long id, Pageable pageable);
+	
+	@Query("select e from Especialidade e "
+			+ "join e.medicos m "
+			+ "where e.titulo like :titulo AND m.id = :medicoId")
+	Optional<Especialidade> findByTituloAndIdMedico(String titulo, Long medicoId);
 
 }

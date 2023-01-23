@@ -23,7 +23,7 @@
 
 					<div class="row">
 						<div class="col-md-12">
-
+						
 							<div th:replace="fragments/alert :: alerta-sucesso"></div>
 
 							<form th:action="@{/agendamentos/salvar}" th:object="${agendamento}" method="POST"
@@ -38,19 +38,33 @@
 										<div class="invalid-feedback">
 											Especialidade é obrigatória.
 										</div>
+										<ul class="invalid-feedback pl-0" style="list-style: none;">
+											<li th:each="errEsp : ${errorsEspecialidade}"
+												th:text="${errEsp.getDefaultMessage()}"></li>
+										</ul>
 									</div>
 								</div>
 
 								<div class="form-row">
 									<div class="form-group col-md-12">
-										<div class="card">
-											<div class="card-header">
+										<div class="card" id="cardSelectMedico"
+											th:classappend="${errorsMedico} ? 'border-danger'">
+											<div class="card-header" id="cardHeaderSelectMedico"
+												th:classappend="${errorsMedico} ? 'text-danger'">
 												Indique o médico desejado
 											</div>
 											<div class="card-body" id="medicos">
 												<!-- options by jQuery -->
 											</div>
 										</div>
+										<div class="invalid-feedback invalidFeedbackMedico" style="display: block;"
+											>
+											O médico é obrigatório.
+										</div>
+										<ul class="invalid-feedback pl-0 invalidFeedbackMedico" style="list-style: none; display: block;">
+											<li th:each="errMed : ${errorsMedico}"
+												th:text="${errMed.getDefaultMessage()}"></li>
+										</ul>
 									</div>
 								</div>
 
@@ -63,6 +77,10 @@
 										<div class="invalid-feedback">
 											Data é obrigatória.
 										</div>
+										<ul class="invalid-feedback pl-0" style="list-style: none;">
+											<li th:each="errData : ${errorsDataConsulta}"
+												th:text="${errData.getDefaultMessage()}"></li>
+										</ul>
 									</div>
 								</div>
 
@@ -75,8 +93,14 @@
 											<option th:value="*{horario.id}" th:text="*{horario.horaMinuto}"></option>
 										</select>
 										<div class="invalid-feedback">Horário é obrigatório</div>
+										<ul class="invalid-feedback pl-0" style="list-style: none;">
+											<li th:each="errHor : ${errorsHorario}"
+												th:text="${errHor.getDefaultMessage()}"></li>
+										</ul>
 									</div>
 								</div>
+
+
 
 								<input type="hidden" th:field="*{id}" />
 								<div class="form-group row">
@@ -101,18 +125,21 @@
 	<script th:inline="javascript" th:fragment="inlinescript">
 
 		// buscar o médico pela especialidade
-		/*[# th:if="${agendamento.medico != null}"]*/
+		/*[# th:if="${agendamento.medicoId != null}"]*/
 		$(document).ready(function () {
-			var id = [[${agendamento.medico.id}]];
+			var id = [[${agendamento.medicoId}]];
 			var titulo = [(${#strings.concat("'", agendamento.especialidade.titulo, "'")})];
 		$.get("/medicos/especialidade/titulo/" + titulo, function (result) {
 			$.each(result, function (k, v) {
 				$("#medicos").append(
 					'<div class="custom-control custom-radio">'
-					+ '<input class="custom-control-input" type="radio" id="customRadio' + k + '" name="medico.id" value="' + v.id + '" required ' + (v.id == id ? "checked" : "") + ' />'
+					+ '<input class="custom-control-input" type="radio" id="customRadio' + k + '" name="medicoId" value="' + v.id + '" required ' + (v.id == id ? "checked" : "") + ' />'
 					+ '<label class="custom-control-label" for="customRadio' + k + '">' + v.nome + '</label>'
 					+ '</div>'
 				);
+
+
+
 			});
 		});
 	});

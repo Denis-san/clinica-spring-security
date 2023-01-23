@@ -18,6 +18,7 @@ import com.mballem.curso.security.domain.Horario;
 import com.mballem.curso.security.repository.AgendamentoRepository;
 import com.mballem.curso.security.repository.projection.HistoricoPaciente;
 import com.mballem.curso.security.service.exception.AgendamentoNaoPertenceAoPacienteException;
+import com.mballem.curso.security.service.exception.HorarioInvalidoException;
 import com.mballem.curso.security.web.controller.exception.AcessoNegadoException;
 
 @Service
@@ -36,6 +37,17 @@ public class AgendamentoService {
 
 	@Transactional(readOnly = false)
 	public void salvar(Agendamento agendamento) {
+
+		Long medicoId = agendamento.getMedico().getId();
+		LocalDate dataConsulta = agendamento.getDataConsulta();
+
+		List<Horario> horariosDisponiveis = repository.findByMedicoIdAndDataNotHorarioAgendado(medicoId,
+				dataConsulta);
+
+		if (horariosDisponiveis.contains(agendamento.getHorario()) == false) {
+			throw new HorarioInvalidoException("Hoarario inválido");	
+		}
+
 		repository.save(agendamento);
 	}
 

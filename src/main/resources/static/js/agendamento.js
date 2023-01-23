@@ -27,7 +27,7 @@ $('#especialidade').on('blur', function() {
 				if ( k == ultimo ) {
 	    			$("#medicos").append( 
 	    				 '<div class="custom-control custom-radio">'	
-	    				+  '<input class="custom-control-input" type="radio" id="customRadio'+ k +'" name="medico.id" value="'+ v.id +'" required>'
+	    				+  '<input class="custom-control-input" type="radio" id="customRadio'+ k +'" name="medicoId" value="'+ v.id +'" onclick="inputIsSelected(this)" required>'
 						+  '<label class="custom-control-label" for="customRadio'+ k +'">'+ v.nome +'</label>'
 						+  '<div class="invalid-feedback">Médico é obrigatório</div>'
 						+'</div>'
@@ -35,7 +35,7 @@ $('#especialidade').on('blur', function() {
 				} else {
 	    			$("#medicos").append( 
 	    				 '<div class="custom-control custom-radio">'	
-	    				+  '<input class="custom-control-input" type="radio" id="customRadio'+ k +'" name="medico.id" value="'+ v.id +'" required>'
+	    				+  '<input class="custom-control-input" type="radio" id="customRadio'+ k +'" name="medicoId" value="'+ v.id +'" onclick="inputIsSelected(this)" required>'
 						+  '<label class="custom-control-label" for="customRadio'+ k +'">'+ v.nome +'</label>'
 						+'</div>'
 	        		);	            				
@@ -45,10 +45,30 @@ $('#especialidade').on('blur', function() {
 	}
 });	
 
+function inputIsSelected(input){
+	
+	if(input.checked){
+		var card = document.getElementById("cardSelectMedico");
+		card.classList.remove("border-danger");
+		card.classList.add("border-success")
+		
+		var head = document.getElementById("cardHeaderSelectMedico");
+		head.classList.remove("text-danger")
+		head.classList.add("text-success")
+		
+		var invalidFeedbacks = document.getElementsByClassName("invalidFeedbackMedico");
+		
+		for(let i = 0; i < invalidFeedbacks.length; i++){
+			invalidFeedbacks[i].style.display = "none";
+		}
+	}
+	
+}
+
 $('#data').on('blur', function () {
 	$("#horarios").empty();
     var data = $(this).val();
-    var medico = $('input[name="medico.id"]:checked').val();
+    var medico = $('input[name="medicoId"]:checked').val();
     if (!Date.parse(data)) {
         console.log('data nao selecionada')
     } else {
@@ -99,3 +119,5 @@ $(document).ready(function() {
         ]
     });
 });
+
+

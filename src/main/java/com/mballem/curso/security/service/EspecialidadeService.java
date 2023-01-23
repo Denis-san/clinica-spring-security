@@ -15,6 +15,7 @@ import com.mballem.curso.security.datatables.Datatables;
 import com.mballem.curso.security.datatables.DatatablesColunas;
 import com.mballem.curso.security.domain.Especialidade;
 import com.mballem.curso.security.repository.EspecialidadeRepository;
+import com.mballem.curso.security.service.exception.EspecialidadeNaoPerteceAoMedicoException;
 
 @Service
 public class EspecialidadeService {
@@ -79,4 +80,8 @@ public class EspecialidadeService {
 		return datatables.getResponse(page);
 	}
 
+	@Transactional(readOnly = true)
+	public Especialidade buscarPorTituloEIdMedico(String titulo, Long medicoId) {
+		return repository.findByTituloAndIdMedico(titulo, medicoId).orElseThrow(() -> new EspecialidadeNaoPerteceAoMedicoException("Essa especialidade não pertece a medico selecionado"));
+	}
 }
