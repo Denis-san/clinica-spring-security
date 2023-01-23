@@ -7,8 +7,11 @@ import java.time.format.DateTimeFormatter;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.beans.BeanUtils;
+
 import com.mballem.curso.security.domain.Agendamento;
 import com.mballem.curso.security.domain.Especialidade;
+import com.mballem.curso.security.domain.Horario;
 import com.mballem.curso.security.domain.Medico;
 import com.mballem.curso.security.domain.Paciente;
 import com.mballem.curso.security.validation.AgendamentoDate;
@@ -18,19 +21,31 @@ public class AgendamentoDTO implements Serializable {
 
 	private Long id;
 
-	@NotNull (message = "A especialidade não pode estar vazia")
+	@NotNull(message = "A especialidade não pode estar vazia")
 	@Valid
 	private EspecialidadeDTO especialidade;
 
 	@NotNull(message = "O médico deve ser selecionado")
 	private Long medicoId;
 
-	@NotNull (message = "O horário deve ser especificado")
+	@NotNull(message = "O horário deve ser especificado")
 	@Valid
 	private HorarioDTO horario;
 
-	@AgendamentoDate (message = "Data inválida")
+	@AgendamentoDate(message = "Data inválida")
 	private String dataConsulta;
+
+	public AgendamentoDTO() {
+
+	}
+
+	public AgendamentoDTO(Agendamento agendamento) {
+		this.id = agendamento.getId();
+		this.dataConsulta = agendamento.getDataConsulta().format(DateTimeFormatter.ISO_LOCAL_DATE);
+		this.medicoId = agendamento.getMedico().getId();
+		this.especialidade = toNewEspecialidadeDTO(agendamento.getEspecialidade());
+		this.horario = toNewHorarioDTO(agendamento.getHorario());
+	}
 
 	public Long getId() {
 		return id;
@@ -47,11 +62,11 @@ public class AgendamentoDTO implements Serializable {
 	public void setEspecialidade(EspecialidadeDTO especialidade) {
 		this.especialidade = especialidade;
 	}
-	
+
 	public Long getMedicoId() {
 		return medicoId;
 	}
-	
+
 	public void setMedicoId(Long medicoId) {
 		this.medicoId = medicoId;
 	}
@@ -72,7 +87,7 @@ public class AgendamentoDTO implements Serializable {
 		this.horario = horario;
 	}
 
-	public Agendamento toAgendamento(Paciente paciente, Especialidade especialidade) {
+	public Agendamento toNewAgendamento(Paciente paciente, Especialidade especialidade) {
 		Agendamento agendamento = new Agendamento();
 
 		agendamento.setDataConsulta(LocalDate.parse(dataConsulta, DateTimeFormatter.ISO_LOCAL_DATE));
@@ -80,7 +95,38 @@ public class AgendamentoDTO implements Serializable {
 		agendamento.setHorario(horario.toNewHorario());
 		agendamento.setMedico(new Medico(medicoId));
 		agendamento.setPaciente(paciente);
-		
+
 		return agendamento;
 	}
+	
+	public Agendamento toAgendamento(Paciente paciente, Especialidade especialidade) {
+		Agendamento agendamento = new Agendamento();
+		
+		agendamento.setId(id);
+		agendamento.setDataConsulta(LocalDate.parse(dataConsulta, DateTimeFormatter.ISO_LOCAL_DATE));
+		agendamento.setEspecialidade(especialidade);
+		agendamento.setHorario(horario.toNewHorario());
+		agendamento.setMedico(new Medico(medicoId));
+		agendamento.setPaciente(paciente);
+
+		return agendamento;
+	}
+
+	private EspecialidadeDTO toNewEspecialidadeDTO(Especialidade especialidade) {
+		EspecialidadeDTO especialidadeDTO = new EspecialidadeDTO();
+		
+		BeanUtils.copyProperties(especialidade, especialidadeDTO);
+		
+		return especialidadeDTO;
+	}
+	
+	private HorarioDTO toNewHorarioDTO(Horario horario) {
+		HorarioDTO horarioDto = new HorarioDTO();
+		
+		BeanUtils.copyProperties(horario, horarioDto);
+		
+		return horarioDto;
+	}
+
+	
 }

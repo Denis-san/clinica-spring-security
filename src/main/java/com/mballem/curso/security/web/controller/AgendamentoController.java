@@ -60,19 +60,20 @@ public class AgendamentoController {
 
 	@PreAuthorize("hasAuthority('PACIENTE')")
 	@PostMapping({ "/salvar" })
-	public String salvar(@ModelAttribute("agendamento") @Valid AgendamentoDTO agendamento, BindingResult bdResult, RedirectAttributes attr, @AuthenticationPrincipal User user) {
-		
-		if(bdResult.hasErrors()) {
+	public String salvar(@ModelAttribute("agendamento") @Valid AgendamentoDTO agendamento, BindingResult bdResult,
+			RedirectAttributes attr, @AuthenticationPrincipal User user) {
+
+		if (bdResult.hasErrors()) {
 			attr.addFlashAttribute("errorsEspecialidade", bdResult.getFieldErrors("especialidade.titulo"));
 			attr.addFlashAttribute("errorsDataConsulta", bdResult.getFieldErrors("dataConsulta"));
 			attr.addFlashAttribute("errorsMedico", bdResult.getFieldErrors("medicoId"));
 			attr.addFlashAttribute("errorsHorario", bdResult.getFieldErrors("horario"));
 			return "redirect:/agendamentos/agendar";
 		}
-		
+
 		Paciente paciente = pacienteService.buscarPorUsuarioEmail(user.getUsername());
-		
-		if(paciente.hasNotId()) {
+
+		if (paciente.hasNotId()) {
 			attr.addFlashAttribute("aviso", "Você precisa preencher seus dados cadastrais antes de prosseguir");
 			return "redirect:/pacientes/dados";
 		}
@@ -80,8 +81,8 @@ public class AgendamentoController {
 		String titulo = agendamento.getEspecialidade().getTitulo();
 
 		Especialidade especialidade = especialidadeService.buscarPorTituloEIdMedico(titulo, agendamento.getMedicoId());
-		
-		Agendamento agendamentoToSave = agendamento.toAgendamento(paciente, especialidade);
+
+		Agendamento agendamentoToSave = agendamento.toNewAgendamento(paciente, especialidade);
 		service.salvar(agendamentoToSave);
 
 		attr.addFlashAttribute("sucesso", "Sua consulta foi agendada com sucesso!");
@@ -116,30 +117,45 @@ public class AgendamentoController {
 	public String preEditarConsulta(@PathVariable("id") Long id, ModelMap model, @AuthenticationPrincipal User user) {
 
 		Agendamento agendamento = service.buscarAgendamentoPorIdEUsuario(id, user.getUsername());
-		model.addAttribute("agendamento", agendamento);
+		
+		AgendamentoDTO agendamentoDto = new AgendamentoDTO(agendamento);
+		
+		model.addAttribute("agendamento", agendamentoDto);
 
-		return "agendamento/cadastro";
+		return "agendamento/editar";
 	}
 
 	@PreAuthorize("hasAnyAuthority('PACIENTE', 'MEDICO')")
 	@PostMapping("/editar")
-	public String editarConsulta(Agendamento agendamento, RedirectAttributes attr, @AuthenticationPrincipal User user) {
-		
-		String titulo = agendamento.getEspecialidade().getTitulo();
-		Especialidade especialidade = especialidadeService.buscarPorTitulos(new String[] { titulo }).stream()
-				.findFirst().get();
-		agendamento.setEspecialidade(especialidade);
+	public String editarConsulta(@ModelAttribute("agendamento") @Valid AgendamentoDTO agendamento,
+			BindingResult bdResult, RedirectAttributes attr, @AuthenticationPrincipal User user) {
 
-		service.editar(agendamento, user.getUsername());
+		if (bdResult.hasErrors()) {
+			attr.addFlashAttribute("errorsEspecialidade", bdResult.getFieldErrors("especialidade.titulo"));
+			attr.addFlashAttribute("errorsDataConsulta", bdResult.getFieldErrors("dataConsulta"));
+			attr.addFlashAttribute("errorsMedico", bdResult.getFieldErrors("medicoId"));
+			attr.addFlashAttribute("errorsHorario", bdResult.getFieldErrors("horario"));
+			return "redirect:/agendamentos/editar/consulta/" + agendamento.getId();
+		}
+
+		String titulo = agendamento.getEspecialidade().getTitulo();
+		Especialidade especialidade = especialidadeService.buscarPorTituloEIdMedico(titulo, agendamento.getMedicoId());
+
+		Paciente paciente = pacienteService.buscarPorUsuarioEmail(user.getUsername());
+
+		Agendamento agendamentoToSave = agendamento.toAgendamento(paciente, especialidade);
+		
+		service.editar(agendamentoToSave, user.getUsername());
 		attr.addFlashAttribute("sucesso", "Sua consulta foi alterada com sucesso!");
 
-		return "redirect:/agendamentos/agendar";
+		return "redirect:/agendamentos/historico/consultas";
 
 	}
 
 	@PreAuthorize("hasAnyAuthority('PACIENTE')")
 	@GetMapping("/excluir/consulta/{id}")
-	public String excluirConsulta(@PathVariable("id") Long id, RedirectAttributes attr,  @AuthenticationPrincipal User user) {
+	public String excluirConsulta(@PathVariable("id") Long id, RedirectAttributes attr,
+			@AuthenticationPrincipal User user) {
 		service.removerConsultaPorIdEUsuarioEmail(id, user.getUsername());
 
 		attr.addFlashAttribute("sucesso", "Consulta excluida com sucesso!");

@@ -26,7 +26,7 @@
 						
 							<div th:replace="fragments/alert :: alerta-sucesso"></div>
 
-							<form th:action="@{/agendamentos/salvar}" th:object="${agendamento}" method="POST"
+							<form th:action="@{/agendamentos/editar}" th:object="${agendamento}" method="POST"
 								class="was-validated">
 
 								<div class="form-row">
@@ -100,11 +100,14 @@
 									</div>
 								</div>
 
+
+
+								<input type="hidden" th:field="*{id}" />
 								<div class="form-group row">
 									<div class="col-sm-10">
 										<button id="btn-salvar" type="submit" class="btn btn-primary"
 											data-toggle="tooltip" data-placement="right" title="Salvar">
-											<i class="fas fa-save"></i>
+											<i class="fas fa-save"></i> Salvar
 										</button>
 									</div>
 								</div>
