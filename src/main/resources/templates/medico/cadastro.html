@@ -26,6 +26,22 @@
 
 							<div th:replace="fragments/alert  :: alerta-sucesso"></div>
 
+							<div th:if="${errorConstraint != null}">
+								<div class="alert alert-danger alert-dismissible fade show" role="alert">
+									<i class="oi oi-check"></i>
+									<span th:if="${#strings.contains(errorConstraint.toLowerCase(), 'crm')}">
+										<strong>Ja existe um médico cadastrado com este CRM</strong>
+									</span>
+									<span th:if="${#strings.contains(errorConstraint.toLowerCase(), 'nome')}">
+										<strong>Ja existe um médico cadastrado com este nome</strong>
+									</span>
+									
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+							</div>
+
 							<div class="add-toast position-absolute" aria-live="polite" aria-atomic="true"
 								style="top:0px; right:20px;">
 								<!--toast-->
@@ -39,6 +55,10 @@
 										<input type="text" class="form-control" th:field="*{nome}" id="nome"
 											placeholder="João da Silva" required />
 										<div class="invalid-feedback">Nome completo é requerido.</div>
+										<ul class="invalid-feedback pl-0" style="list-style: none;">
+											<li th:each="errNome : ${errorsNome}"
+												th:text="${errNome.getDefaultMessage()}"></li>
+										</ul>
 									</div>
 								</div>
 								<div class="form-row">
@@ -47,12 +67,20 @@
 										<input type="text" class="form-control" id="crm" placeholder="000000"
 											th:field="*{crm}" required />
 										<div class="invalid-feedback">CRM é requerido.</div>
+										<ul class="invalid-feedback pl-0" style="list-style: none;">
+											<li th:each="errCrm : ${errorsCrm}" th:text="${errCrm.getDefaultMessage()}">
+											</li>
+										</ul>
 									</div>
 									<div class="form-group col-md-6">
 										<label for="dtInscricao">Data da Inscrição</label>
 										<input type="date" class="form-control" id="dtInscricao"
 											th:field="*{dtInscricao}" required />
 										<div class="invalid-feedback">Data de Inscrição CRM é requerida.</div>
+										<ul class="invalid-feedback pl-0" style="list-style: none;">
+											<li th:each="errDtInsc : ${errorsDtInscricao}"
+												th:text="${errDtInsc.getDefaultMessage()}"></li>
+										</ul>
 									</div>
 								</div>
 
@@ -62,24 +90,25 @@
 									<div class="form-group">
 										<label for="autocomplete-especialidades">Especialidade(s)</label>
 										<input type="text" id="autocomplete-especialidades" class="form-control"
-											placeholder="suas especialidade são..." />
-										<small class="form-text text-muted">Insira suas
-											especialidades médicas.</small>
-
+											placeholder="suas especialidade são..." required />
+										<div class="invalid-feedback">Pelo menos uma especialidade é requerida.</div>
+										<ul class="invalid-feedback pl-0" style="list-style: none;">
+											<li th:each="errEspec : ${errorsEspecialidades}"
+												th:text="${errEspec.getDefaultMessage()}"></li>
+										</ul>
 									</div>
 								</div>
 								<div id='listaEspecializacoes'>
 									<input type="hidden" name="especialidades" value="" />
 								</div>
 
-								<input type="hidden" name="uid" th:field="*{usuario.id}">
 								<input type="hidden" name="id" th:field="*{id}">
 
 								<div class="form-group row">
 									<div class="col-sm-10">
 										<button type="submit" class="btn btn-primary" data-toggle="tooltip"
 											data-placement="right" title="Salvar">
-											<i class="fas fa-save"></i>
+											<i class="fas fa-save"></i> Salvar
 										</button>
 									</div>
 								</div>

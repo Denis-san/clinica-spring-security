@@ -1,12 +1,18 @@
 package com.mballem.curso.security.web.controller;
 
+import javax.validation.Valid;
+
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.mballem.curso.security.domain.Medico;
 import com.mballem.curso.security.domain.Usuario;
+import com.mballem.curso.security.dto.MedicoDTO;
 import com.mballem.curso.security.service.MedicoService;
 import com.mballem.curso.security.service.UsuarioService;
 
@@ -28,27 +35,41 @@ public class MedicoController {
 	private UsuarioService usuarioService;
 
 	@GetMapping({ "/dados" })
-	public String abrirPorMedico(Medico medico, ModelMap model, @AuthenticationPrincipal User user) {
+	public String abrirPorMedico(@ModelAttribute("medico") MedicoDTO medicoDto, ModelMap model,
+			@AuthenticationPrincipal User user) {
 
-		if (medico.hasNotId()) {
-			medico = service.findByEmail(user.getUsername());
-			model.addAttribute("medico", medico);
+		if (medicoDto.getId() == null) {
+			medicoDto = new MedicoDTO(service.findByEmail(user.getUsername()));
+			model.addAttribute("medico", medicoDto);
 		}
 
 		return "medico/cadastro";
 	}
 
 	@PostMapping({ "/salvar" })
-	public String salvar(Medico medico, RedirectAttributes attr, @AuthenticationPrincipal User user) {
+	public String salvar(@ModelAttribute("medico") @Valid Medico medico, BindingResult bdResult,
+			RedirectAttributes attr, @AuthenticationPrincipal User user) {
 
-		if (medico.hasNotId() && medico.getUsuario().hasNotId()) {
+		if (bdResult.hasErrors()) {
+			attr.addFlashAttribute("errorsNome", bdResult.getFieldErrors("nome"));
+			attr.addFlashAttribute("errorsCrm", bdResult.getFieldErrors("crm"));
+			attr.addFlashAttribute("errorsDtInscricao", bdResult.getFieldErrors("dtInscricao"));
+			attr.addFlashAttribute("errorsEspecialidades", bdResult.getFieldErrors("especialidades"));
+			return "redirect:/medicos/dados";
+		}
+
+		if ((medico.getUsuario() == null) || (medico.hasNotId() && medico.getUsuario().hasNotId())) {
 			Usuario usuario = usuarioService.buscarUsuarioPorEmail(user.getUsername());
-
 			medico.setUsuario(usuario);
 		}
 
-		service.salvar(medico);
-
+		try {
+			service.salvar(medico);
+		} catch (DataIntegrityViolationException e) {
+			attr.addFlashAttribute("errorConstraint", ((ConstraintViolationException) e.getCause()).getConstraintName());
+			return "redirect:/medicos/dados";
+		}
+		
 		attr.addFlashAttribute("sucesso", "Sucesso!");
 		attr.addFlashAttribute("medico", medico);
 

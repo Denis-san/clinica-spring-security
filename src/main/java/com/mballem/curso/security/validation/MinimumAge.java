@@ -7,21 +7,17 @@ import java.lang.annotation.Target;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.CompositionType;
-import org.hibernate.validator.constraints.ConstraintComposition;
+import javax.validation.ReportAsSingleViolation;
 
 import com.mballem.curso.security.validation.validator.MinimumAgeValidator;
 
-@ConstraintComposition(CompositionType.AND)
-@NotNull
+@ReportAsSingleViolation
 @Constraint(validatedBy = {MinimumAgeValidator.class})
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.METHOD })
 public @interface MinimumAge {
 
-	String message() default "A senha não é valida";
+	String message() default "Invalid date";
 	
 	int min() default 0;
 
