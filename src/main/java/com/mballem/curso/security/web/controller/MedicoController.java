@@ -47,7 +47,7 @@ public class MedicoController {
 	}
 
 	@PostMapping({ "/salvar" })
-	public String salvar(@ModelAttribute("medico") @Valid Medico medico, BindingResult bdResult,
+	public String salvar(@ModelAttribute("medico") @Valid MedicoDTO medicoDto, BindingResult bdResult,
 			RedirectAttributes attr, @AuthenticationPrincipal User user) {
 
 		if (bdResult.hasErrors()) {
@@ -58,20 +58,20 @@ public class MedicoController {
 			return "redirect:/medicos/dados";
 		}
 
-		if ((medico.getUsuario() == null) || (medico.hasNotId() && medico.getUsuario().hasNotId())) {
+		if ((medicoDto.getUsuario() == null) || (medicoDto.getId() == null && medicoDto.getUsuario().hasNotId())) {
 			Usuario usuario = usuarioService.buscarUsuarioPorEmail(user.getUsername());
-			medico.setUsuario(usuario);
+			medicoDto.setUsuario(usuario);
 		}
 
 		try {
-			service.salvar(medico);
+			service.salvar(medicoDto.toNewMedico());
 		} catch (DataIntegrityViolationException e) {
 			attr.addFlashAttribute("errorConstraint", ((ConstraintViolationException) e.getCause()).getConstraintName());
 			return "redirect:/medicos/dados";
 		}
 		
 		attr.addFlashAttribute("sucesso", "Sucesso!");
-		attr.addFlashAttribute("medico", medico);
+		attr.addFlashAttribute("medico", medicoDto);
 
 		return "redirect:/medicos/dados";
 	}
