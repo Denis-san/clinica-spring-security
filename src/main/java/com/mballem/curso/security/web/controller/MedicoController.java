@@ -18,10 +18,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.mballem.curso.security.domain.Especialidade;
+import com.mballem.curso.security.domain.Medico;
 import com.mballem.curso.security.domain.Usuario;
 import com.mballem.curso.security.dto.MedicoDTO;
 import com.mballem.curso.security.service.MedicoService;
 import com.mballem.curso.security.service.UsuarioService;
+import com.mballem.curso.security.service.exception.EspecialidadeNaoPerteceAoMedicoException;
 
 @Controller
 @RequestMapping("/medicos")
@@ -64,7 +67,8 @@ public class MedicoController {
 		try {
 			service.salvar(medicoDto.toNewMedico());
 		} catch (DataIntegrityViolationException e) {
-			attr.addFlashAttribute("errorConstraint", ((ConstraintViolationException) e.getCause()).getConstraintName());
+			attr.addFlashAttribute("errorConstraint",
+					((ConstraintViolationException) e.getCause()).getConstraintName());
 			return "redirect:/medicos/dados";
 		}
 
@@ -88,7 +92,8 @@ public class MedicoController {
 		try {
 			service.editar(medicoDto.toMedico(), user.getUsername());
 		} catch (DataIntegrityViolationException e) {
-			attr.addFlashAttribute("errorConstraint", ((ConstraintViolationException) e.getCause()).getConstraintName());
+			attr.addFlashAttribute("errorConstraint",
+					((ConstraintViolationException) e.getCause()).getConstraintName());
 			return "redirect:/medicos/dados";
 		}
 
@@ -100,7 +105,13 @@ public class MedicoController {
 
 	@GetMapping({ "/id/{idMed}/excluir/especializacao/{idEsp}" })
 	public String excluirEspecialidadePorMedico(@PathVariable("idMed") Long idMed, @PathVariable("idEsp") Long idEsp,
-			RedirectAttributes attr) {
+			RedirectAttributes attr, @AuthenticationPrincipal User user) {
+
+		Medico medico = service.findByEmail(user.getUsername());
+
+		if ((medico.getId() != idMed) || (medico.getEspecialidades().contains(new Especialidade(idEsp)) == false)) {
+			throw new EspecialidadeNaoPerteceAoMedicoException("Essa especialidade não pertence a este médico!");
+		}
 
 		if (service.existeEspecialidadeAgendada(idMed, idEsp)) {
 			attr.addFlashAttribute("falha", "Existem consultas agendadas para essa especialidade");
@@ -113,7 +124,6 @@ public class MedicoController {
 
 	@GetMapping("/especialidade/titulo/{titulo}")
 	public ResponseEntity<?> getMedicosPorEspecialidade(@PathVariable("titulo") String titulo) {
-
 		return ResponseEntity.ok(service.buscarMedicosPorEspecialidade(titulo));
 	}
 
