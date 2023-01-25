@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.mballem.curso.security.domain.Medico;
 import com.mballem.curso.security.domain.Usuario;
 import com.mballem.curso.security.dto.MedicoDTO;
 import com.mballem.curso.security.service.MedicoService;
@@ -54,7 +53,6 @@ public class MedicoController {
 			attr.addFlashAttribute("errorsNome", bdResult.getFieldErrors("nome"));
 			attr.addFlashAttribute("errorsCrm", bdResult.getFieldErrors("crm"));
 			attr.addFlashAttribute("errorsDtInscricao", bdResult.getFieldErrors("dtInscricao"));
-			attr.addFlashAttribute("errorsEspecialidades", bdResult.getFieldErrors("especialidades"));
 			return "redirect:/medicos/dados";
 		}
 
@@ -69,7 +67,7 @@ public class MedicoController {
 			attr.addFlashAttribute("errorConstraint", ((ConstraintViolationException) e.getCause()).getConstraintName());
 			return "redirect:/medicos/dados";
 		}
-		
+
 		attr.addFlashAttribute("sucesso", "Sucesso!");
 		attr.addFlashAttribute("medico", medicoDto);
 
@@ -77,12 +75,25 @@ public class MedicoController {
 	}
 
 	@PostMapping({ "/editar" })
-	public String editar(Medico medico, RedirectAttributes attr) {
+	public String editar(@ModelAttribute("medico") @Valid MedicoDTO medicoDto, BindingResult bdResult,
+			RedirectAttributes attr, @AuthenticationPrincipal User user) {
 
-		service.editar(medico);
+		if (bdResult.hasErrors()) {
+			attr.addFlashAttribute("errorsNome", bdResult.getFieldErrors("nome"));
+			attr.addFlashAttribute("errorsCrm", bdResult.getFieldErrors("crm"));
+			attr.addFlashAttribute("errorsDtInscricao", bdResult.getFieldErrors("dtInscricao"));
+			return "redirect:/medicos/dados";
+		}
 
-		attr.addFlashAttribute("sucesso", "Sucesso!");
-		attr.addFlashAttribute("medico", medico);
+		try {
+			service.editar(medicoDto.toMedico(), user.getUsername());
+		} catch (DataIntegrityViolationException e) {
+			attr.addFlashAttribute("errorConstraint", ((ConstraintViolationException) e.getCause()).getConstraintName());
+			return "redirect:/medicos/dados";
+		}
+
+		attr.addFlashAttribute("sucesso", "Dados editados com sucesso!");
+		attr.addFlashAttribute("medico", medicoDto);
 
 		return "redirect:/medicos/dados";
 	}

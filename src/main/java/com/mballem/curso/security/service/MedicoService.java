@@ -26,8 +26,8 @@ public class MedicoService {
 	}
 
 	@Transactional(readOnly = false)
-	public void editar(Medico medico) {
-		Medico otherMedico = repository.findById(medico.getId()).get();
+	public void editar(Medico medico, String email) {
+		Medico otherMedico = findByEmail(email);
 
 		otherMedico.setCrm(medico.getCrm());
 		otherMedico.setDtInscricao(medico.getDtInscricao());

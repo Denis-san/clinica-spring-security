@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -31,13 +30,10 @@ public class MedicoDTO implements Serializable {
 	@NotNull(message = "O CRM não deve estar vazio")
 	private Integer crm;
 
-	@NotNull(message = "A data de inscrição não deve estar vazia")
 	@MinimumAge(min = 1, message = "Data inválida")
 	@DateTimeFormat(iso = ISO.DATE)
 	private LocalDate dtInscricao;
 
-	@NotNull(message = "A especialidade não pode estar vazia")
-	@NotEmpty(message = "O médico deve possuir no mínimo uma especialidade")
 	private Set<Especialidade> especialidades;
 
 	private List<Agendamento> agendamentos;

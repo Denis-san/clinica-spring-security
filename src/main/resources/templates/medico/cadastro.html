@@ -55,7 +55,7 @@
 										<input type="text" class="form-control" th:field="*{nome}" id="nome"
 											placeholder="João da Silva" required />
 										<div class="invalid-feedback">Nome completo é requerido.</div>
-										<ul class="invalid-feedback pl-0" style="list-style: none;">
+										<ul class="text-danger pl-0" style="list-style: none; font-size: 80%;">
 											<li th:each="errNome : ${errorsNome}"
 												th:text="${errNome.getDefaultMessage()}"></li>
 										</ul>
@@ -67,7 +67,7 @@
 										<input type="text" class="form-control" id="crm" placeholder="000000"
 											th:field="*{crm}" required />
 										<div class="invalid-feedback">CRM é requerido.</div>
-										<ul class="invalid-feedback pl-0" style="list-style: none;">
+										<ul class="text-danger pl-0" style="list-style: none; font-size: 80%;">
 											<li th:each="errCrm : ${errorsCrm}" th:text="${errCrm.getDefaultMessage()}">
 											</li>
 										</ul>
@@ -77,32 +77,24 @@
 										<input type="date" class="form-control" id="dtInscricao"
 											th:field="*{dtInscricao}" required />
 										<div class="invalid-feedback">Data de Inscrição CRM é requerida.</div>
-										<ul class="invalid-feedback pl-0" style="list-style: none;">
+										<ul class="text-danger pl-0" style="list-style: none; font-size: 80%;">
 											<li th:each="errDtInsc : ${errorsDtInscricao}"
 												th:text="${errDtInsc.getDefaultMessage()}"></li>
 										</ul>
 									</div>
 								</div>
 
-
-
 								<div id="especialidades-selecionadas">
 									<div class="form-group">
 										<label for="autocomplete-especialidades">Especialidade(s)</label>
 										<input type="text" id="autocomplete-especialidades" class="form-control"
-											placeholder="suas especialidade são..." required />
+											placeholder="suas especialidade são..." />
 										<div class="invalid-feedback">Pelo menos uma especialidade é requerida.</div>
-										<ul class="invalid-feedback pl-0" style="list-style: none;">
-											<li th:each="errEspec : ${errorsEspecialidades}"
-												th:text="${errEspec.getDefaultMessage()}"></li>
-										</ul>
 									</div>
 								</div>
 								<div id='listaEspecializacoes'>
 									<input type="hidden" name="especialidades" value="" />
 								</div>
-
-								<input type="hidden" name="id" th:field="*{id}">
 
 								<div class="form-group row">
 									<div class="col-sm-10">
