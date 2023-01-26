@@ -129,7 +129,7 @@ public class AgendamentoController {
 	@PostMapping("/editar")
 	public String editarConsulta(@ModelAttribute("agendamento") @Valid AgendamentoDTO agendamento,
 			BindingResult bdResult, RedirectAttributes attr, @AuthenticationPrincipal User user) {
-
+		
 		if (bdResult.hasErrors()) {
 			attr.addFlashAttribute("errorsEspecialidade", bdResult.getFieldErrors("especialidade.titulo"));
 			attr.addFlashAttribute("errorsDataConsulta", bdResult.getFieldErrors("dataConsulta"));

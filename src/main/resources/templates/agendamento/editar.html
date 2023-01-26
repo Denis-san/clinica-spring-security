@@ -24,8 +24,6 @@
 					<div class="row">
 						<div class="col-md-12">
 						
-							<div th:replace="fragments/alert :: alerta-sucesso"></div>
-
 							<form th:action="@{/agendamentos/editar}" th:object="${agendamento}" method="POST"
 								class="was-validated">
 
@@ -38,7 +36,7 @@
 										<div class="invalid-feedback">
 											Especialidade é obrigatória.
 										</div>
-										<ul class="invalid-feedback pl-0" style="list-style: none;">
+										<ul class="text-danger pl-0" style="list-style: none; font-size: 80%;">
 											<li th:each="errEsp : ${errorsEspecialidade}"
 												th:text="${errEsp.getDefaultMessage()}"></li>
 										</ul>
@@ -57,11 +55,10 @@
 												<!-- options by jQuery -->
 											</div>
 										</div>
-										<div class="invalid-feedback invalidFeedbackMedico" style="display: block;"
-											>
+										<div class="invalid-feedback invalidFeedbackMedico" style="display: block;">
 											O médico é obrigatório.
 										</div>
-										<ul class="invalid-feedback pl-0 invalidFeedbackMedico" style="list-style: none; display: block;">
+										<ul class="text-danger pl-0" style="list-style: none; font-size: 80%;">
 											<li th:each="errMed : ${errorsMedico}"
 												th:text="${errMed.getDefaultMessage()}"></li>
 										</ul>
@@ -77,7 +74,7 @@
 										<div class="invalid-feedback">
 											Data é obrigatória.
 										</div>
-										<ul class="invalid-feedback pl-0" style="list-style: none;">
+										<ul class="text-danger pl-0" style="list-style: none; font-size: 80%;">
 											<li th:each="errData : ${errorsDataConsulta}"
 												th:text="${errData.getDefaultMessage()}"></li>
 										</ul>
@@ -93,7 +90,7 @@
 											<option th:value="*{horario.id}" th:text="*{horario.horaMinuto}"></option>
 										</select>
 										<div class="invalid-feedback">Horário é obrigatório</div>
-										<ul class="invalid-feedback pl-0" style="list-style: none;">
+										<ul class="text-danger pl-0" style="list-style: none; font-size: 80%;">
 											<li th:each="errHor : ${errorsHorario}"
 												th:text="${errHor.getDefaultMessage()}"></li>
 										</ul>
