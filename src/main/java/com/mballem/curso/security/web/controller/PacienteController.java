@@ -1,10 +1,13 @@
 package com.mballem.curso.security.web.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,8 +45,12 @@ public class PacienteController {
 	}
 
 	@PostMapping("/salvar")
-	public String salvar(@ModelAttribute("paciente") PacienteDTO pacienteDto, @AuthenticationPrincipal User user,
-			ModelMap model) {
+	public String salvar(@ModelAttribute("paciente") @Valid PacienteDTO pacienteDto, BindingResult bdResult,
+			@AuthenticationPrincipal User user, ModelMap model) {
+
+		if (bdResult.hasErrors()) {
+			return "paciente/cadastro";
+		}
 
 		Usuario usuario = usuarioService.buscarUsuarioPorEmail(user.getUsername());
 
@@ -60,24 +67,27 @@ public class PacienteController {
 	}
 
 	@PostMapping("/editar")
-	public String editar(Paciente paciente, @AuthenticationPrincipal User user, ModelMap model) {
+	public String editar(@ModelAttribute("paciente") @Valid PacienteDTO pacienteDto, BindingResult bdResult,
+			@AuthenticationPrincipal User user, ModelMap model) {
 
+		if (bdResult.hasErrors()) {
+			return "paciente/editar";
+		}
+		
 		Paciente pacienteDb = service.buscarPorUsuarioEmail(user.getUsername());
 
-		if (!paciente.getId().equals(pacienteDb.getId())) {
-			model.addAttribute("falha", "Algo não deu certo! Tente novamente.");
-			paciente.setId(pacienteDb.getId());
-			return "paciente/editar";
+		if (!pacienteDto.getId().equals(pacienteDb.getId())) {
+			throw new IllegalArgumentException("Algo deu errado!");
 		}
 
 		Usuario usuario = pacienteDb.getUsuario();
 
-		if (!usuarioService.isSenhaCorreta(paciente.getUsuario().getSenha(), usuario.getSenha())) {
+		if (!usuarioService.isSenhaCorreta(pacienteDto.getUsuario().getSenha(), usuario.getSenha())) {
 			model.addAttribute("falha", "Senha incorreta!");
 			return "paciente/editar";
 		}
 
-		service.editar(paciente);
+		service.editar(pacienteDto.toPaciente());
 		model.addAttribute("sucesso", "Dados atualizados com sucesso!");
 		return "paciente/editar";
 	}

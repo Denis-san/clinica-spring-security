@@ -18,16 +18,26 @@ import com.mballem.curso.security.validation.MinimumAge;
 public class PacienteDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@NotNull
-	@NotEmpty
-	@Size(min = 5, max = 50)
+	private Long id;
+
+	@NotNull(message = "O nome não pode estar nulo")
+	@NotEmpty(message = "O nome não pode estar vazio")
+	@Size(min = 5, max = 50, message = "O nome deve ter entre 5 e 50 caracteres")
 	private String nome;
 
 	@DateTimeFormat(iso = ISO.DATE)
-	@MinimumAge(min = 10)
+	@MinimumAge(min = 10, message = "Data inválida! O paciente deve ter no mínimo 10 anos de idade")
 	private LocalDate dtNascimento;
 
 	private Usuario usuario;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public String getNome() {
 		return nome;
