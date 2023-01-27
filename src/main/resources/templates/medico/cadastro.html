@@ -24,7 +24,7 @@
 					<div class="d-flex justify-content-center">
 						<div class="col-md-8">
 
-							<div th:replace="fragments/alert  :: alerta-sucesso"></div>
+							<div th:replace="~{fragments/alert  :: alerta-sucesso}"></div>
 
 							<div th:if="${errorConstraint != null}">
 								<div class="alert alert-danger alert-dismissible fade show" role="alert">

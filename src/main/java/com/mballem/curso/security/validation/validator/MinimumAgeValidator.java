@@ -3,8 +3,8 @@ package com.mballem.curso.security.validation.validator;
 import java.time.LocalDate;
 import java.time.Period;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 import com.mballem.curso.security.validation.MinimumAge;
 

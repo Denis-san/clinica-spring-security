@@ -2,8 +2,8 @@ package com.mballem.curso.security.dto;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 
 import org.springframework.beans.BeanUtils;
 

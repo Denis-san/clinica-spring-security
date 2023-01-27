@@ -3,7 +3,7 @@ package com.mballem.curso.security.dto;
 import java.io.Serializable;
 import java.time.LocalTime;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
 

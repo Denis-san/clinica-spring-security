@@ -3,7 +3,7 @@ package com.mballem.curso.security.domain;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @SuppressWarnings("serial")
