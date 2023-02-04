@@ -62,8 +62,12 @@ public class SecurityConfig {
 			.exceptionHandling()
 			.accessDeniedPage("/acesso-negado")
 		.and()
-			.rememberMe();
-		
+			.rememberMe()
+		.and()
+			.headers()
+	        .xssProtection()
+	        .and()
+	        .contentSecurityPolicy("style-src 'self' somecdn.css.com; script-src 'self'; form-action 'self'");
 		return http.build();
 	}
 	
@@ -80,5 +84,4 @@ public class SecurityConfig {
 				.and()
 				.build();
 	}
-
 }
