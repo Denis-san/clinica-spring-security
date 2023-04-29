@@ -120,7 +120,7 @@ public class UsuarioService implements UserDetailsService {
 
 		repository.save(usuario);
 
-		 emailDeConfirmacaoDeCadastro(usuario.getEmail());
+		emailDeConfirmacaoDeCadastro(usuario.getEmail());
 
 	}
 
@@ -131,7 +131,7 @@ public class UsuarioService implements UserDetailsService {
 
 	public void emailDeConfirmacaoDeCadastro(String email) throws MessagingException, MailSendException {
 		String codigo = Base64Utils.encodeToString(email.getBytes());
-		 emailService.enviarPedidoDeConfirmacaoDeCadastro(email, codigo);
+		emailService.enviarPedidoDeConfirmacaoDeCadastro(email, codigo);
 	}
 
 	@Transactional(readOnly = false)

@@ -38,28 +38,38 @@
 										</div>
 										<input type="email" class="form-control" id="email" th:field="*{email}"
 											placeholder="Email" aria-describedby="validationTooltipUsernamePrepend"
-											required />
+											required th:errorclass="is-invalid"/>
 										<div class="invalid-feedback">Email é requerido.</div>
+										<ul class="invalid-feedback pl-3">
+											<li th:each="err : ${errosEmail}" th:text="${err.getDefaultMessage()}">
+											</li>
+										</ul>
 									</div>
 								</div>
 
 								<div class="mb-3">
 									<label for="senha">Senha</label>
-									<input type="password" class="form-control" id="senha" maxlength="6"
-										th:field="*{senha}" placeholder="Insira sua senha de acesso" required />
+									<input type="password" class="form-control" id="senha" th:field="*{senha}"
+										placeholder="Insira sua senha de acesso" required th:errorclass="is-invalid" />
 									<div class="invalid-feedback">Senha é requerida para confirmar a operação.</div>
+									<ul class="invalid-feedback pl-3">
+										<li th:each="err : ${errorsSenha}" th:text="${err.getDefaultMessage()}"></li>
+									</ul>
 								</div>
 
 								<div class="mb-3">
 									<label for="perfis">Perfil</label>
 									<select id="perfis" class="custom-select" size="4" th:field="*{perfis}" multiple
-										required>
+										required th:errorclass="is-invalid">
 										<option value="1">Administrador</option>
 										<option value="2">Médico</option>
 										<option value="3">Paciente</option>
 									</select>
 									<input type="hidden" value="0" name="perfis">
 									<div class="invalid-feedback">Pelo menos um perfil é requerido.</div>
+									<ul class="invalid-feedback pl-3">
+										<li th:each="err : ${errorsPerfil}" th:text="${err.getDefaultMessage()}"></li>
+									</ul>
 								</div>
 
 								<div class="mb-3">
@@ -91,17 +101,17 @@
 	</section>
 	<script th:src="~{}" th:fragment="js"></script>
 	<script th:inline="javascript" th:fragment="inlinescript">
-	
-		$('#perfis').ready(function(){
+
+		$('#perfis').ready(function () {
 			var perfis = [[${usuario.perfis}]];
-			
-			$.each(perfis, function(k, v){
+
+			$.each(perfis, function (k, v) {
 				$('#perfis option[value= "' + v.id + '"]').attr('selected', 'selected');
 			});
-			
-			
+
+
 		});
-	
+
 	</script>
 </body>
 

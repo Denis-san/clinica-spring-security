@@ -1,12 +1,5 @@
 package com.mballem.curso.security.web.controller;
 
-import java.util.Arrays;
-import java.util.List;
-
-import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +23,16 @@ import com.mballem.curso.security.domain.Perfil;
 import com.mballem.curso.security.domain.PerfilTipo;
 import com.mballem.curso.security.domain.Usuario;
 import com.mballem.curso.security.dto.ChangePasswordDTO;
-import com.mballem.curso.security.dto.NovoUsuarioDto;
+import com.mballem.curso.security.dto.NovoUsuarioDTO;
+import com.mballem.curso.security.dto.NovoUsuarioPacienteDTO;
 import com.mballem.curso.security.dto.RecoveryAccountDTO;
 import com.mballem.curso.security.service.EmailService;
 import com.mballem.curso.security.service.MedicoService;
 import com.mballem.curso.security.service.UsuarioService;
+
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/u")
@@ -63,22 +61,23 @@ public class UsuarioController {
 	}
 
 	@PostMapping("/cadastro/salvar")
-	public String salvarUsuarioPorAdministrador(Usuario usuario, RedirectAttributes attr) {
-		List<Perfil> perfis = usuario.getPerfis();
+	public String salvarUsuarioPorAdministrador(@Valid NovoUsuarioDTO usuarioDto, BindingResult bdResult,
+			RedirectAttributes attr) {
 
-		if (perfis.size() > 2 || (perfis.containsAll(Arrays.asList(new Perfil(1L), new Perfil(3L)))
-				|| perfis.containsAll(Arrays.asList(new Perfil(2L), new Perfil(3L))))) {
+		if (bdResult.hasErrors()) {
+			attr.addFlashAttribute("errorsPerfil", bdResult.getFieldErrors("perfis"));
+			attr.addFlashAttribute("errorsSenha", bdResult.getFieldErrors("senha"));
+			attr.addFlashAttribute("errosEmail", bdResult.getFieldErrors("email"));
 
-			attr.addFlashAttribute("falha", "Paciente não pode ser admin e/ou Médico");
-			attr.addFlashAttribute("usuario", usuario);
-		} else {
-			try {
-				service.salvarUsuario(usuario);
-				attr.addFlashAttribute("sucesso", "Sucesso!");
-			} catch (DataIntegrityViolationException err) {
-				attr.addFlashAttribute("falha",
-						"Cadastro não realizado! Pois esse email ja existe em nossa aplicação!");
-			}
+			return "redirect:/u/novo/cadastro/usuario";
+		}
+
+		try {
+			service.salvarUsuario(usuarioDto.toNewUsuario());
+			attr.addFlashAttribute("sucesso", "Sucesso!");
+		} catch (DataIntegrityViolationException err) {
+			attr.addFlashAttribute("falha",
+					"Cadastro não realizado! Já existe esse email cadastrado em nossa aplicação!");
 		}
 
 		return "redirect:/u/novo/cadastro/usuario";
@@ -133,15 +132,16 @@ public class UsuarioController {
 	public String editarSenha(@Valid @ModelAttribute("chPassObjt") ChangePasswordDTO chPassObjt, BindingResult bdResult,
 			@AuthenticationPrincipal User user, RedirectAttributes attr) {
 
-		if(bdResult.hasErrors()) {
+		if (bdResult.hasErrors()) {
 			attr.addFlashAttribute("errorsPass1", bdResult.getFieldErrors("password1"));
 			attr.addFlashAttribute("errorsPass2", bdResult.getFieldErrors("password2"));
 			attr.addFlashAttribute("errorsPassCurrentPass", bdResult.getFieldErrors("currentPassword"));
-			attr.addFlashAttribute("fieldsMatchError", bdResult.getAllErrors().stream().filter(e -> e.getCode().equals("FieldsMatch")).findFirst().orElse(null));
-			
+			attr.addFlashAttribute("fieldsMatchError", bdResult.getAllErrors().stream()
+					.filter(e -> e.getCode().equals("FieldsMatch")).findFirst().orElse(null));
+
 			return "redirect:/u/editar/senha";
 		}
-		
+
 		Usuario usuario = service.buscarUsuarioPorEmail(user.getUsername());
 
 		if (!service.isSenhaCorreta(chPassObjt.getCurrentPassword(), usuario.getSenha())) {
@@ -168,7 +168,7 @@ public class UsuarioController {
 	}
 
 	@PostMapping("/cadastro/paciente/salvar")
-	public String salvarCadastroPaciente(@Valid @ModelAttribute("usuario") NovoUsuarioDto usuario,
+	public String salvarCadastroPaciente(@Valid @ModelAttribute("usuario") NovoUsuarioPacienteDTO usuario,
 			BindingResult bdResult) throws MessagingException {
 
 		if (bdResult.hasErrors()) {
@@ -176,7 +176,7 @@ public class UsuarioController {
 		}
 
 		try {
-			service.salvarCadastroPaciente(usuario.toNewUsuario());
+			service.salvarCadastroPaciente(usuario.toNewUsuarioPaciente());
 		} catch (DataIntegrityViolationException ex) {
 			bdResult.rejectValue("email", "email", "Oops! Já esse email ja existe em nosso sistema!");
 			return "cadastrar-se";

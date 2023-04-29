@@ -11,21 +11,21 @@ import com.mballem.curso.security.domain.PerfilTipo;
 import com.mballem.curso.security.domain.Usuario;
 import com.mballem.curso.security.validation.Password;
 
-public class NovoUsuarioDto implements Serializable{
+public class NovoUsuarioPacienteDTO implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	@Email
-	@NotEmpty
+	@NotEmpty(message = "O email não deve estar vazio!")
 	private String email;
 
 	@Password
 	private String senha;
 
-	public NovoUsuarioDto() {
+	public NovoUsuarioPacienteDTO() {
 		super();
 	}
 
-	public NovoUsuarioDto(String email) {
+	public NovoUsuarioPacienteDTO(String email) {
 		this.email = email;
 	}
 
@@ -50,7 +50,7 @@ public class NovoUsuarioDto implements Serializable{
 		return "NovoUsuarioDto [email=" + email + ", senha=" + senha + "]";
 	}
 
-	public Usuario toNewUsuario() {
+	public Usuario toNewUsuarioPaciente() {
 		Usuario usuario = new Usuario();
 
 		BeanUtils.copyProperties(this, usuario);
