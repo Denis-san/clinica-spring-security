@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.mballem.curso.security.service.exception.AgendamentoNaoPertenceAoPacienteException;
 import com.mballem.curso.security.service.exception.EspecialidadeNaoPerteceAoMedicoException;
 import com.mballem.curso.security.service.exception.HorarioInvalidoException;
+import com.mballem.curso.security.service.exception.PerfilNaoCondizComCadastroException;
 
 @ControllerAdvice
 public class ExceptionUsuarioController {
@@ -64,6 +65,15 @@ public class ExceptionUsuarioController {
 
 	@ExceptionHandler(HorarioInvalidoException.class)
 	public ModelAndView horarioInvalidoException(HorarioInvalidoException exception) {
+		ModelAndView modelAndView = new ModelAndView("error");
+		modelAndView.addObject("status", 400);
+		modelAndView.addObject("error", "Hmm... Não conseguimos processar a solicitação.");
+		modelAndView.addObject("message", exception.getMessage());
+		return modelAndView;
+	}
+
+	@ExceptionHandler(PerfilNaoCondizComCadastroException.class)
+	public ModelAndView perfilNaoCondizComCadastroException(PerfilNaoCondizComCadastroException exception) {
 		ModelAndView modelAndView = new ModelAndView("error");
 		modelAndView.addObject("status", 400);
 		modelAndView.addObject("error", "Hmm... Não conseguimos processar a solicitação.");

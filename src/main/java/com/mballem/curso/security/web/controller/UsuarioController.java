@@ -168,7 +168,7 @@ public class UsuarioController {
 	}
 
 	@PostMapping("/cadastro/paciente/salvar")
-	public String salvarCadastroPaciente(@Valid @ModelAttribute("usuario") NovoUsuarioPacienteDTO usuario,
+	public String salvarCadastroPaciente(@Valid @ModelAttribute("usuario") NovoUsuarioPacienteDTO usuarioDto,
 			BindingResult bdResult) throws MessagingException {
 
 		if (bdResult.hasErrors()) {
@@ -176,7 +176,7 @@ public class UsuarioController {
 		}
 
 		try {
-			service.salvarCadastroPaciente(usuario.toNewUsuarioPaciente());
+			service.salvarCadastroPaciente(usuarioDto);
 		} catch (DataIntegrityViolationException ex) {
 			bdResult.rejectValue("email", "email", "Oops! Já esse email ja existe em nosso sistema!");
 			return "cadastrar-se";

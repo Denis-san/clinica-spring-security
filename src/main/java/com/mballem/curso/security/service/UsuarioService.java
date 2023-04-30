@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,8 +23,13 @@ import com.mballem.curso.security.datatables.DatatablesColunas;
 import com.mballem.curso.security.domain.Perfil;
 import com.mballem.curso.security.domain.PerfilTipo;
 import com.mballem.curso.security.domain.Usuario;
+import com.mballem.curso.security.dto.NovoUsuarioPacienteDTO;
 import com.mballem.curso.security.repository.UsuarioRepository;
+import com.mballem.curso.security.service.exception.PerfilNaoCondizComCadastroException;
 import com.mballem.curso.security.web.controller.exception.AcessoNegadoException;
+
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class UsuarioService implements UserDetailsService {
@@ -112,11 +114,17 @@ public class UsuarioService implements UserDetailsService {
 	}
 
 	@Transactional(readOnly = false)
-	public void salvarCadastroPaciente(Usuario usuario) throws MessagingException, MailSendException {
+	public void salvarCadastroPaciente(NovoUsuarioPacienteDTO usuarioDto) throws MessagingException, MailSendException {
+
+		Usuario usuario = usuarioDto.toNewUsuarioPaciente();
 		String crypt = new BCryptPasswordEncoder().encode(usuario.getSenha());
 
 		usuario.setSenha(crypt);
-		usuario.addPerfil(PerfilTipo.PACIENTE);
+
+		if (usuario.getPerfis().contains(new Perfil(PerfilTipo.ADMIN.getCod()))
+				|| usuario.getPerfis().contains(new Perfil(PerfilTipo.MEDICO.getCod()))) {
+			throw new PerfilNaoCondizComCadastroException("Este perfil não condiz com o cadastro do usuário!");
+		}
 
 		repository.save(usuario);
 
@@ -152,13 +160,13 @@ public class UsuarioService implements UserDetailsService {
 	public void pedidoRedefinicaoDeSenha(String email) throws MessagingException, MailSendException {
 		Usuario usuario = buscarPorEmailAtivo(email)
 				.orElseThrow(() -> new UsernameNotFoundException("Usuario não encontrado"));
-		
+
 		String verificador = RandomStringUtils.randomAlphanumeric(6);
 		usuario.setCodigoVerificador(verificador);
-		
-		///TODO TEST !!
+
+		/// TODO TEST !!
 		System.out.println(verificador);
-		
+
 		// emailService.enviarPedidoRedefinicaoDeSenha(email, verificador);
 	}
 }

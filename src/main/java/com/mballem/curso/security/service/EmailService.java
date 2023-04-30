@@ -23,9 +23,9 @@ public class EmailService {
 
 	public void enviarPedidoDeConfirmacaoDeCadastro(String destino, String codigo)
 			throws MessagingException, MailSendException {
-		MimeMessage message = mailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
-				"UTF-8");
+		//MimeMessage message = mailSender.createMimeMessage();
+		//MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+		//		"UTF-8");
 
 		Context context = new Context();
 
@@ -34,14 +34,16 @@ public class EmailService {
 		context.setVariable("linkConfirmacao", "http://localhost:8080/u/confirmacao/cadastro?codigo=" + codigo);
 
 		String html = template.process("email/confirmacao", context);
-		helper.setTo(destino);
-		helper.setText(html, true);
-		helper.setSubject("Confirmação do cadastro - Clinica Spring security");
-		helper.setFrom("nao-responder@clinica.com.br");
+		//helper.setTo(destino);
+//		helper.setText(html, true);
+//		helper.setSubject("Confirmação do cadastro - Clinica Spring security");
+//		helper.setFrom("nao-responder@clinica.com.br");
+//
+//		helper.addInline("logo", new ClassPathResource("/static/image/spring-security.png"));
 
-		helper.addInline("logo", new ClassPathResource("/static/image/spring-security.png"));
-
-		mailSender.send(message);
+		//mailSender.send(message);
+		
+		System.out.println(html);
 	}
 
 	public void enviarPedidoRedefinicaoDeSenha(String destino, String codigoVerificador)
